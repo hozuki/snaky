@@ -1,0 +1,12 @@
+{
+    "snaky.launchSimulator": "Snaky: 启动模拟器",
+    "snaky.editReload": "Snaky: 重新加载当前谱面到模拟器",
+    "snaky.previewPlay": "Snaky: 播放当前谱面",
+    "snaky.previewPause": "Snaky: 暂停播放",
+    "snaky.previewStop": "Snaky: 停止播放",
+    "snaky.info.activated": "Snaky 已加载完毕并已激活。",
+    "snaky.info.simExeLaunched": "已启动模拟器 \"{0}\"。",
+    "snaky.error.configFileNotFound": "在没有配置文件（snaky.json）的情况下，无法启动模拟器。",
+    "snaky.error.simExeNotFound": "未找到模拟器程序文件 '{0}'。",
+    "snaky.error.rpcServerNotRunning": "BVSP 服务器未运行。"
+}

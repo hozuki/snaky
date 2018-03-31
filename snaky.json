@@ -1,0 +1,5 @@
+{
+    "simExe": "C:\\ArcaeaSim.exe",
+    "simArgs": "--editor_server_uri %server_uri%",
+    "simName": "ArcaeaSim"
+}
