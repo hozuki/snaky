@@ -4,6 +4,11 @@
     "description": "DSL for Arcaea beatmaps",
     "version": "0.0.1",
     "publisher": "hozuki",
+    "license": "BSD-3-Clause",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/hozuki/snaky.git"
+    },
     "engines": {
         "vscode": "^1.10.0"
     },
