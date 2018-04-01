@@ -1,4 +1,10 @@
 "use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
@@ -12,13 +18,16 @@ const assert = require("assert");
 const http = require("http");
 const HttpStatusCode = require("http-status-codes");
 const BvspConstants_1 = require("../BvspConstants");
+const DisposableBase_1 = require("../DisposableBase");
+const Globals_1 = require("../editor/Globals");
 const JsonRpcErrorCodes_1 = require("./JsonRpcErrorCodes");
 const JsonRpcHelper_1 = require("./JsonRpcHelper");
 const ServerHttpContext_1 = require("./ServerHttpContext");
 const ServerRpcContext_1 = require("./ServerRpcContext");
-const Globals_1 = require("../editor/Globals");
-class JsonRpcServer {
+const Override_1 = require("../common/annotations/Override");
+class JsonRpcServer extends DisposableBase_1.default {
     constructor() {
+        super();
         this._methodHandlers = new Map();
         this._server = null;
         this._server = http.createServer(this.__requestHandler.bind(this));
@@ -43,7 +52,7 @@ class JsonRpcServer {
     get isRunning() {
         return this._server.listening;
     }
-    dispose() {
+    onDispose() {
         if (this.isRunning) {
             this.stop();
         }
@@ -201,5 +210,8 @@ class JsonRpcServer {
         }
     }
 }
+__decorate([
+    Override_1.default()
+], JsonRpcServer.prototype, "onDispose", null);
 exports.default = JsonRpcServer;
 //# sourceMappingURL=JsonRpcServer.js.map

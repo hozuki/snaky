@@ -11,11 +11,15 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const requestPromise = require("request-promise-native");
 const BvspConstants_1 = require("../BvspConstants");
 const JsonRpcHelper_1 = require("./JsonRpcHelper");
+const Globals_1 = require("../editor/Globals");
 class JsonRpcClient {
     sendRequest(uri, method, params = null, id = null) {
         return __awaiter(this, void 0, void 0, function* () {
             const options = prepareRequest(method, true, params, id);
             const responseBody = yield requestPromise.post(uri, options);
+            if (Globals_1.default.debug) {
+                console.debug(`Sent RPC command "${method}" to server '${uri}'; type = request`);
+            }
             let responseObj;
             try {
                 responseObj = JSON.parse(responseBody);
@@ -33,6 +37,9 @@ class JsonRpcClient {
         return __awaiter(this, void 0, void 0, function* () {
             const options = prepareRequest(method, false, params);
             yield requestPromise.post(uri, options);
+            if (Globals_1.default.debug) {
+                console.debug(`Sent RPC command "${method}" to server '${uri}'; type = notification`);
+            }
         });
     }
 }

@@ -8,26 +8,20 @@ const vscode = require("vscode");
 const CommonUtils_1 = require("../CommonUtils");
 const nls = require("../Nls");
 const Globals_1 = require("./Globals");
+const SnakyConfigLoader_1 = require("./SnakyConfigLoader");
 function launchSimulator() {
     const comm = Globals_1.default.comm;
     if (comm === null || !comm.server.isRunning) {
-        const warningMessage = nls.localize("snaky.error.rpcServerNotRunning", "BVSP server is not running.");
+        const warningMessage = nls.localize("snaky.warning.rpcServerNotRunning", "BVSP server is not running.");
         vscode.window.showWarningMessage(warningMessage);
         return;
     }
-    const workspaceRootPath = vscode.workspace.rootPath;
-    if (workspaceRootPath === undefined) {
-        const warningMessage = nls.localize("snaky.error.configFileNotFound", "Cannot start the simulator without config file (snaky.json).");
-        vscode.window.showWarningMessage(warningMessage);
+    const configJson = SnakyConfigLoader_1.default.load();
+    if (configJson === null) {
         return;
     }
-    const relativeConfigFilePath = "snaky.json";
-    const absoluteConfigFilePath = path.join(workspaceRootPath, relativeConfigFilePath);
-    const configFileData = fs.readFileSync(absoluteConfigFilePath, "utf-8");
-    const configJson = JSON.parse(configFileData);
     if (!fs.existsSync(configJson.simExe) || !fs.lstatSync(configJson.simExe).isFile()) {
-        // const warningMessageTemplate = localize("snaky.error.simExeNotFound", "Simulator executable '{0}' is not found.");
-        const warningMessageTemplate = nls.localize(5, "Simulator executable '{0}' is not found.");
+        const warningMessageTemplate = nls.localize("snaky.error.simExeNotFound", "Simulator executable '{0}' is not found.");
         vscode.window.showErrorMessage(CommonUtils_1.default.formatString(warningMessageTemplate, configJson.simExe));
         return;
     }
@@ -42,12 +36,42 @@ function launchSimulator() {
     if (Globals_1.default.debug) {
         console.debug("Launching simulator: " + configJson.simExe + " " + args.join(" "));
     }
-    child_process.execFile(configJson.simExe, args, execOptions);
+    child_process.spawn(configJson.simExe, args, execOptions);
     {
-        const infoMessageTemplate = nls.localize("snaky.info.simExeLaunched", "Launched simulator \"{0}\".");
+        const infoMessageTemplate = nls.localize("snaky.info.simExeLaunching", "Launching simulator \"{0}\".");
         const infoMessage = CommonUtils_1.default.formatString(infoMessageTemplate, configJson.simName);
         vscode.window.showInformationMessage(infoMessage);
     }
 }
 exports.launchSimulator = launchSimulator;
+function previewPlay() {
+    const comm = Globals_1.default.comm;
+    if (comm === null || !comm.server.isRunning) {
+        const warningMessage = nls.localize("snaky.warning.rpcServerNotRunning", "BVSP server is not running.");
+        vscode.window.showWarningMessage(warningMessage);
+        return;
+    }
+    comm.client.sendPlayRequest();
+}
+exports.previewPlay = previewPlay;
+function previewPause() {
+    const comm = Globals_1.default.comm;
+    if (comm === null || !comm.server.isRunning) {
+        const warningMessage = nls.localize("snaky.warning.rpcServerNotRunning", "BVSP server is not running.");
+        vscode.window.showWarningMessage(warningMessage);
+        return;
+    }
+    comm.client.sendPauseRequest();
+}
+exports.previewPause = previewPause;
+function previewStop() {
+    const comm = Globals_1.default.comm;
+    if (comm === null || !comm.server.isRunning) {
+        const warningMessage = nls.localize("snaky.warning.rpcServerNotRunning", "BVSP server is not running.");
+        vscode.window.showWarningMessage(warningMessage);
+        return;
+    }
+    comm.client.sendStopRequest();
+}
+exports.previewStop = previewStop;
 //# sourceMappingURL=Commands.js.map

@@ -10,8 +10,15 @@ const nls = require("./Nls");
 // your extension is activated the very first time the command is executed
 function activate(context) {
     Globals_1.default.onActivate(context);
-    const launchSimulatorCommand = vscode.commands.registerCommand("snaky.command.launchSimulator", Commands.launchSimulator);
-    context.subscriptions.push(launchSimulatorCommand);
+    let cmd;
+    cmd = vscode.commands.registerCommand("snaky.command.launchSimulator", Commands.launchSimulator);
+    context.subscriptions.push(cmd);
+    cmd = vscode.commands.registerCommand("snaky.command.previewPlay", Commands.previewPlay);
+    context.subscriptions.push(cmd);
+    cmd = vscode.commands.registerCommand("snaky.command.previewPause", Commands.previewPause);
+    context.subscriptions.push(cmd);
+    cmd = vscode.commands.registerCommand("snaky.command.previewStop", Commands.previewStop);
+    context.subscriptions.push(cmd);
     vscode.window.showInformationMessage(nls.localize("snaky.info.activated", "Snaky is loaded and activated."));
 }
 exports.activate = activate;

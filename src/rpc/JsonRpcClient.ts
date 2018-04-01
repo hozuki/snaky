@@ -3,12 +3,17 @@ import {BvspConstants} from "../BvspConstants";
 import JsonRpcHelper from "./JsonRpcHelper";
 import RequestMessage from "./RequestMessage";
 import ResponseMessage from "./ResponseMessage";
+import Globals from "../editor/Globals";
 
 export default class JsonRpcClient {
 
     async sendRequest(uri: string, method: string, params: any[] | object | null = null, id: string | number | null = null): Promise<ResponseMessage> {
         const options = prepareRequest(method, true, params, id);
         const responseBody: string = await requestPromise.post(uri, options);
+
+        if (Globals.debug) {
+            console.debug(`Sent RPC command "${method}" to server '${uri}'; type = request`);
+        }
 
         let responseObj;
 
@@ -28,6 +33,10 @@ export default class JsonRpcClient {
     async sendNotification(uri: string, method: string, params: any[] | object | null): Promise<void> {
         const options = prepareRequest(method, false, params);
         await requestPromise.post(uri, options);
+
+        if (Globals.debug) {
+            console.debug(`Sent RPC command "${method}" to server '${uri}'; type = notification`);
+        }
     }
 
 }

@@ -2,18 +2,21 @@ import * as assert from "assert";
 import * as http from "http";
 import * as HttpStatusCode from "http-status-codes";
 import {BvspConstants} from "../BvspConstants";
-import IDisposable from "../IDisposable";
+import DisposableBase from "../DisposableBase";
+import Globals from "../editor/Globals";
 import {JsonRpcErrorCodes} from "./JsonRpcErrorCodes";
 import JsonRpcHelper from "./JsonRpcHelper";
 import MethodHandler from "./MethodHandler";
 import RequestMessage from "./RequestMessage";
 import ServerHttpContext from "./ServerHttpContext";
 import ServerRpcContext from "./ServerRpcContext";
-import Globals from "../editor/Globals";
+import Override from "../common/annotations/Override";
 
-export default class JsonRpcServer implements IDisposable {
+export default class JsonRpcServer extends DisposableBase {
 
     constructor() {
+        super();
+
         this._server = http.createServer(this.__requestHandler.bind(this));
         this.registerMethodHandlers();
     }
@@ -42,7 +45,8 @@ export default class JsonRpcServer implements IDisposable {
         return this._server!.listening;
     }
 
-    dispose(): void {
+    @Override()
+    onDispose(): void {
         if (this.isRunning) {
             this.stop();
         }

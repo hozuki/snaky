@@ -1,3 +1,5 @@
+import * as vscode from "vscode";
+import * as nls from "../Nls";
 import JsonRpcClient from "../rpc/JsonRpcClient";
 import ResponseMessage from "../rpc/ResponseMessage";
 import {CommonMethodNames} from "./bvs/CommonMethodNames";
@@ -49,7 +51,8 @@ export default class SnakyClient extends JsonRpcClient {
     protected async safeSendRequest(method: string, params: any[] | object | null = null, id: string | number | null = null): Promise<ResponseMessage | null> {
         const uri = this._comm.simulatorServerUri;
 
-        if (uri === null) {
+        if (uri === null || uri === undefined) {
+            vscode.window.showWarningMessage(nls.localize("snaky.warning.simulatorNotRunning", "No active simulator found."));
             return null;
         } else {
             return this.sendRequest(uri, method, params, id);
@@ -59,7 +62,8 @@ export default class SnakyClient extends JsonRpcClient {
     protected async safeSendNotification(method: string, params: any[] | object | null = null): Promise<void> {
         const uri = this._comm.simulatorServerUri;
 
-        if (uri === null) {
+        if (uri === null || uri === undefined) {
+            vscode.window.showWarningMessage(nls.localize("snaky.warning.simulatorNotRunning", "No active simulator found."));
             return;
         } else {
             return this.sendNotification(uri, method, params);

@@ -1,9 +1,13 @@
+import * as vscode from "vscode";
 import Override from "../common/annotations/Override";
+import CommonUtils from "../CommonUtils";
+import * as nls from "../Nls";
 import JsonRpcServer from "../rpc/JsonRpcServer";
 import ServerRpcContext from "../rpc/ServerRpcContext";
 import {CommonMethodNames} from "./bvs/CommonMethodNames";
-import GeneralSimLaunchedNotificationParameter from "./bvs/SimLaunchedNotificationParameter";
+import Globals from "./Globals";
 import SnakyComm from "./SnakyComm";
+import SnakyConfigLoader from "./SnakyConfigLoader";
 
 export default class SnakyServer extends JsonRpcServer {
 
@@ -15,17 +19,38 @@ export default class SnakyServer extends JsonRpcServer {
     protected onSimLaunched(context: ServerRpcContext): void {
         const params = context.message.params as any[];
 
-        const p = params[0] as GeneralSimLaunchedNotificationParameter;
+        // const p = params[0] as GeneralSimLaunchedNotificationParameter;
 
-        this._comm.simulatorServerUri = p.server_uri;
+        // this._comm.simulatorServerUri = p.server_uri;
+        this._comm.simulatorServerUri = params[0];
 
-        context.httpContext.ok().then();
+        if (Globals.debug) {
+            console.debug("Simulator server URI: " + params[0]);
+        }
+
+        context.httpContext.ok();
+
+        const configJson = SnakyConfigLoader.load();
+
+        if (configJson !== null) {
+            const infoMessageTemplate = nls.localize("snaky.info.simExeLaunched", "Launched simulator \"{0}\".");
+            const infoMessage = CommonUtils.formatString(infoMessageTemplate, configJson.simName);
+            vscode.window.showInformationMessage(infoMessage);
+        }
     }
 
     protected onSimExited(context: ServerRpcContext): void {
         this._comm.simulatorServerUri = null;
 
         context.httpContext.ok();
+
+        const configJson = SnakyConfigLoader.load();
+
+        if (configJson !== null) {
+            const infoMessageTemplate = nls.localize("snaky.info.simulatorExited", "Simulator \"{0}\" has exited.");
+            const infoMessage = CommonUtils.formatString(infoMessageTemplate, configJson.simName);
+            vscode.window.showInformationMessage(infoMessage);
+        }
     }
 
     protected onPreviewPlaying(context: ServerRpcContext): void {

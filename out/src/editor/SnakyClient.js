@@ -8,6 +8,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const vscode = require("vscode");
+const nls = require("../Nls");
 const JsonRpcClient_1 = require("../rpc/JsonRpcClient");
 const CommonMethodNames_1 = require("./bvs/CommonMethodNames");
 class SnakyClient extends JsonRpcClient_1.default {
@@ -56,7 +58,8 @@ class SnakyClient extends JsonRpcClient_1.default {
     safeSendRequest(method, params = null, id = null) {
         return __awaiter(this, void 0, void 0, function* () {
             const uri = this._comm.simulatorServerUri;
-            if (uri === null) {
+            if (uri === null || uri === undefined) {
+                vscode.window.showWarningMessage(nls.localize("snaky.warning.simulatorNotRunning", "No active simulator found."));
                 return null;
             }
             else {
@@ -67,7 +70,8 @@ class SnakyClient extends JsonRpcClient_1.default {
     safeSendNotification(method, params = null) {
         return __awaiter(this, void 0, void 0, function* () {
             const uri = this._comm.simulatorServerUri;
-            if (uri === null) {
+            if (uri === null || uri === undefined) {
+                vscode.window.showWarningMessage(nls.localize("snaky.warning.simulatorNotRunning", "No active simulator found."));
                 return;
             }
             else {

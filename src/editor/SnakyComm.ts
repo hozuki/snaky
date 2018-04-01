@@ -1,10 +1,13 @@
-import IDisposable from "../IDisposable";
+import Override from "../common/annotations/Override";
+import DisposableBase from "../DisposableBase";
 import SnakyClient from "./SnakyClient";
 import SnakyServer from "./SnakyServer";
 
-export default class SnakyComm implements IDisposable {
+export default class SnakyComm extends DisposableBase {
 
     constructor() {
+        super();
+
         this._client = new SnakyClient(this);
         this._server = new SnakyServer(this);
     }
@@ -25,7 +28,8 @@ export default class SnakyComm implements IDisposable {
         this._simulatorServerUri = v;
     }
 
-    dispose(): void {
+    @Override()
+    onDispose(): void {
         this._server.dispose();
     }
 

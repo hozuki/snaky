@@ -5,8 +5,12 @@
     "snaky.command.previewPause": "Snaky: 暂停播放",
     "snaky.command.previewStop": "Snaky: 停止播放",
     "snaky.info.activated": "Snaky 已加载完毕并已激活。",
+    "snaky.info.simExeLaunching": "正在启动模拟器 \"{0}\"。",
     "snaky.info.simExeLaunched": "已启动模拟器 \"{0}\"。",
-    "snaky.error.configFileNotFound": "在没有配置文件（snaky.json）的情况下，无法启动模拟器。",
-    "snaky.error.simExeNotFound": "未找到模拟器程序文件 '{0}'。",
-    "snaky.error.rpcServerNotRunning": "BVSP 服务器未运行。"
+    "snaky.info.simulatorReady": "模拟器 \"{0}\" 已准备完毕。",
+    "snaky.info.simulatorExited": "模拟器 \"{0}\" 已退出。",
+    "snaky.warning.rpcServerNotRunning": "BVSP 服务器未运行。",
+    "snaky.warning.simulatorNotRunning": "未发现运行中的模拟器。",
+    "snaky.error.configFileNotFound": "在当前工作区中未发现配置文件 \"snaky.json\"。",
+    "snaky.error.simExeNotFound": "未找到模拟器程序文件 '{0}'。"
 }

@@ -5,8 +5,12 @@
     "snaky.command.previewPause": "Snaky: Pause Playback",
     "snaky.command.previewStop": "Snaky: Stop Playback",
     "snaky.info.activated": "Snaky is loaded and activated.",
+    "snaky.info.simExeLaunching": "Launching simulator \"{0}\".",
     "snaky.info.simExeLaunched": "Launched simulator \"{0}\".",
-    "snaky.error.configFileNotFound": "Cannot start the simulator without config file (snaky.json).",
-    "snaky.error.simExeNotFound": "Simulator executable '{0}' is not found.",
-    "snaky.error.rpcServerNotRunning": "BVSP server is not running."
+    "snaky.info.simulatorReady": "Simulator \"{0}\" is ready.",
+    "snaky.info.simulatorExited": "Simulator \"{0}\" has exited.",
+    "snaky.warning.rpcServerNotRunning": "BVSP server is not running.",
+    "snaky.warning.simulatorNotRunning": "No active simulator found.",
+    "snaky.error.configFileNotFound": "Config file \"snaky.json\" not found in current workspace.",
+    "snaky.error.simExeNotFound": "Simulator executable '{0}' is not found."
 }
