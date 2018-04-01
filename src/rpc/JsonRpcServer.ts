@@ -2,15 +2,15 @@ import * as assert from "assert";
 import * as http from "http";
 import * as HttpStatusCode from "http-status-codes";
 import {BvspConstants} from "../BvspConstants";
+import Override from "../common/annotations/Override";
 import DisposableBase from "../DisposableBase";
-import Globals from "../editor/Globals";
+import JsonRpc from "./JsonRpc";
 import {JsonRpcErrorCodes} from "./JsonRpcErrorCodes";
 import JsonRpcHelper from "./JsonRpcHelper";
 import MethodHandler from "./MethodHandler";
 import RequestMessage from "./RequestMessage";
 import ServerHttpContext from "./ServerHttpContext";
 import ServerRpcContext from "./ServerRpcContext";
-import Override from "../common/annotations/Override";
 
 export default class JsonRpcServer extends DisposableBase {
 
@@ -73,7 +73,7 @@ export default class JsonRpcServer extends DisposableBase {
         validateHeaders(context).then(validationResult => {
             if (!validationResult.successful) {
 
-                if (Globals.debug) {
+                if (JsonRpc.debug) {
                     console.debug(`RPC failed. HTTP Status: ${validationResult.httpCode} RPC Err: ${validationResult.rpcErrorCode} Message: ${validationResult.rpcErrorMessage}`);
                 }
 
@@ -199,7 +199,7 @@ export default class JsonRpcServer extends DisposableBase {
                 }
             }
 
-            if (Globals.debug) {
+            if (JsonRpc.debug) {
                 let debugMessage: string;
 
                 if (handler === null) {

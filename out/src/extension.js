@@ -4,12 +4,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 // Import the module and reference it with the alias vscode in your code below
 const vscode = require("vscode");
 const Commands = require("./editor/Commands");
-const Globals_1 = require("./editor/Globals");
+const SnakyState_1 = require("./editor/SnakyState");
 const nls = require("./Nls");
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 function activate(context) {
-    Globals_1.default.onActivate(context);
+    SnakyState_1.default.onActivate(context);
     let cmd;
     cmd = vscode.commands.registerCommand("snaky.command.launchSimulator", Commands.launchSimulator);
     context.subscriptions.push(cmd);
@@ -24,7 +24,7 @@ function activate(context) {
 exports.activate = activate;
 // this method is called when your extension is deactivated
 function deactivate() {
-    Globals_1.default.onDeactivate();
+    SnakyState_1.default.onDeactivate();
 }
 exports.deactivate = deactivate;
 //# sourceMappingURL=extension.js.map

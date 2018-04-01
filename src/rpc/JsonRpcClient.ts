@@ -1,9 +1,9 @@
 import * as requestPromise from "request-promise-native";
 import {BvspConstants} from "../BvspConstants";
+import JsonRpc from "./JsonRpc";
 import JsonRpcHelper from "./JsonRpcHelper";
 import RequestMessage from "./RequestMessage";
 import ResponseMessage from "./ResponseMessage";
-import Globals from "../editor/Globals";
 
 export default class JsonRpcClient {
 
@@ -11,7 +11,7 @@ export default class JsonRpcClient {
         const options = prepareRequest(method, true, params, id);
         const responseBody: string = await requestPromise.post(uri, options);
 
-        if (Globals.debug) {
+        if (JsonRpc.debug) {
             console.debug(`Sent RPC command "${method}" to server '${uri}'; type = request`);
         }
 
@@ -34,7 +34,7 @@ export default class JsonRpcClient {
         const options = prepareRequest(method, false, params);
         await requestPromise.post(uri, options);
 
-        if (Globals.debug) {
+        if (JsonRpc.debug) {
             console.debug(`Sent RPC command "${method}" to server '${uri}'; type = notification`);
         }
     }

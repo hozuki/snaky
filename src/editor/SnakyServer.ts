@@ -5,9 +5,9 @@ import * as nls from "../Nls";
 import JsonRpcServer from "../rpc/JsonRpcServer";
 import ServerRpcContext from "../rpc/ServerRpcContext";
 import {CommonMethodNames} from "./bvs/CommonMethodNames";
-import Globals from "./Globals";
 import SnakyComm from "./SnakyComm";
-import SnakyConfigLoader from "./SnakyConfigLoader";
+import SnakyConfig from "./SnakyConfig";
+import SnakyState from "./SnakyState";
 
 export default class SnakyServer extends JsonRpcServer {
 
@@ -24,13 +24,13 @@ export default class SnakyServer extends JsonRpcServer {
         // this._comm.simulatorServerUri = p.server_uri;
         this._comm.simulatorServerUri = params[0];
 
-        if (Globals.debug) {
+        if (SnakyState.debug) {
             console.debug("Simulator server URI: " + params[0]);
         }
 
         context.httpContext.ok();
 
-        const configJson = SnakyConfigLoader.load();
+        const configJson = SnakyConfig.load();
 
         if (configJson !== null) {
             const infoMessageTemplate = nls.localize("snaky.info.simExeLaunched", "Launched simulator \"{0}\".");
@@ -44,7 +44,7 @@ export default class SnakyServer extends JsonRpcServer {
 
         context.httpContext.ok();
 
-        const configJson = SnakyConfigLoader.load();
+        const configJson = SnakyConfig.load();
 
         if (configJson !== null) {
             const infoMessageTemplate = nls.localize("snaky.info.simulatorExited", "Simulator \"{0}\" has exited.");

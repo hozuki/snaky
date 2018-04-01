@@ -18,13 +18,13 @@ const assert = require("assert");
 const http = require("http");
 const HttpStatusCode = require("http-status-codes");
 const BvspConstants_1 = require("../BvspConstants");
+const Override_1 = require("../common/annotations/Override");
 const DisposableBase_1 = require("../DisposableBase");
-const Globals_1 = require("../editor/Globals");
+const JsonRpc_1 = require("./JsonRpc");
 const JsonRpcErrorCodes_1 = require("./JsonRpcErrorCodes");
 const JsonRpcHelper_1 = require("./JsonRpcHelper");
 const ServerHttpContext_1 = require("./ServerHttpContext");
 const ServerRpcContext_1 = require("./ServerRpcContext");
-const Override_1 = require("../common/annotations/Override");
 class JsonRpcServer extends DisposableBase_1.default {
     constructor() {
         super();
@@ -72,7 +72,7 @@ class JsonRpcServer extends DisposableBase_1.default {
         const context = new ServerHttpContext_1.default(request, response);
         validateHeaders(context).then(validationResult => {
             if (!validationResult.successful) {
-                if (Globals_1.default.debug) {
+                if (JsonRpc_1.default.debug) {
                     console.debug(`RPC failed. HTTP Status: ${validationResult.httpCode} RPC Err: ${validationResult.rpcErrorCode} Message: ${validationResult.rpcErrorMessage}`);
                 }
                 context.rpcError(validationResult.httpCode, validationResult.rpcErrorCode, validationResult.rpcErrorMessage);
@@ -174,7 +174,7 @@ class JsonRpcServer extends DisposableBase_1.default {
                     break;
                 }
             }
-            if (Globals_1.default.debug) {
+            if (JsonRpc_1.default.debug) {
                 let debugMessage;
                 if (handler === null) {
                     debugMessage = `Received command ${requestMessage.method} but found no handler for it. Using default handler.`;

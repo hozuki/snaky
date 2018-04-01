@@ -7,16 +7,16 @@ const stringArgv = require("string-argv");
 const vscode = require("vscode");
 const CommonUtils_1 = require("../CommonUtils");
 const nls = require("../Nls");
-const Globals_1 = require("./Globals");
-const SnakyConfigLoader_1 = require("./SnakyConfigLoader");
+const SnakyConfig_1 = require("./SnakyConfig");
+const SnakyState_1 = require("./SnakyState");
 function launchSimulator() {
-    const comm = Globals_1.default.comm;
+    const comm = SnakyState_1.default.comm;
     if (comm === null || !comm.server.isRunning) {
         const warningMessage = nls.localize("snaky.warning.rpcServerNotRunning", "BVSP server is not running.");
         vscode.window.showWarningMessage(warningMessage);
         return;
     }
-    const configJson = SnakyConfigLoader_1.default.load();
+    const configJson = SnakyConfig_1.default.load();
     if (configJson === null) {
         return;
     }
@@ -33,7 +33,7 @@ function launchSimulator() {
     const execOptions = {
         cwd: path.resolve(path.dirname(configJson.simExe))
     };
-    if (Globals_1.default.debug) {
+    if (SnakyState_1.default.debug) {
         console.debug("Launching simulator: " + configJson.simExe + " " + args.join(" "));
     }
     child_process.spawn(configJson.simExe, args, execOptions);
@@ -45,7 +45,7 @@ function launchSimulator() {
 }
 exports.launchSimulator = launchSimulator;
 function previewPlay() {
-    const comm = Globals_1.default.comm;
+    const comm = SnakyState_1.default.comm;
     if (comm === null || !comm.server.isRunning) {
         const warningMessage = nls.localize("snaky.warning.rpcServerNotRunning", "BVSP server is not running.");
         vscode.window.showWarningMessage(warningMessage);
@@ -55,7 +55,7 @@ function previewPlay() {
 }
 exports.previewPlay = previewPlay;
 function previewPause() {
-    const comm = Globals_1.default.comm;
+    const comm = SnakyState_1.default.comm;
     if (comm === null || !comm.server.isRunning) {
         const warningMessage = nls.localize("snaky.warning.rpcServerNotRunning", "BVSP server is not running.");
         vscode.window.showWarningMessage(warningMessage);
@@ -65,7 +65,7 @@ function previewPause() {
 }
 exports.previewPause = previewPause;
 function previewStop() {
-    const comm = Globals_1.default.comm;
+    const comm = SnakyState_1.default.comm;
     if (comm === null || !comm.server.isRunning) {
         const warningMessage = nls.localize("snaky.warning.rpcServerNotRunning", "BVSP server is not running.");
         vscode.window.showWarningMessage(warningMessage);

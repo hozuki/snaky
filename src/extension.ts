@@ -3,13 +3,13 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from "vscode";
 import * as Commands from "./editor/Commands";
-import Globals from "./editor/Globals";
+import SnakyState from "./editor/SnakyState";
 import * as nls from "./Nls";
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext): void {
-    Globals.onActivate(context);
+    SnakyState.onActivate(context);
 
     let cmd: vscode.Disposable;
 
@@ -30,5 +30,5 @@ export function activate(context: vscode.ExtensionContext): void {
 
 // this method is called when your extension is deactivated
 export function deactivate(): void {
-    Globals.onDeactivate();
+    SnakyState.onDeactivate();
 }

@@ -5,7 +5,18 @@ let $comm: SnakyComm | null = null;
 
 const $debug = true;
 
-export default abstract class Globals {
+/**
+ * Global static state and configuration for Snaky.
+ */
+export default abstract class SnakyState {
+
+    /**
+     * Gets whether debug mode is on.
+     * @returns {boolean} {@see true} if debug mode is on, otherwise {@see false}.
+     */
+    static get debug(): boolean {
+        return $debug;
+    }
 
     static onActivate(context: vscode.ExtensionContext): void {
         $comm = new SnakyComm();
@@ -20,10 +31,6 @@ export default abstract class Globals {
 
     static get comm(): SnakyComm | null {
         return $comm;
-    }
-
-    static get debug(): boolean {
-        return $debug;
     }
 
 }

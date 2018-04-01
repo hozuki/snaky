@@ -5,11 +5,11 @@ import * as stringArgv from "string-argv";
 import * as vscode from "vscode";
 import CommonUtils from "../CommonUtils";
 import * as nls from "../Nls";
-import Globals from "./Globals";
-import SnakyConfigLoader from "./SnakyConfigLoader";
+import SnakyConfig from "./SnakyConfig";
+import SnakyState from "./SnakyState";
 
 export function launchSimulator(): void {
-    const comm = Globals.comm;
+    const comm = SnakyState.comm;
 
     if (comm === null || !comm.server.isRunning) {
         const warningMessage = nls.localize("snaky.warning.rpcServerNotRunning", "BVSP server is not running.");
@@ -17,7 +17,7 @@ export function launchSimulator(): void {
         return;
     }
 
-    const configJson = SnakyConfigLoader.load();
+    const configJson = SnakyConfig.load();
 
     if (configJson === null) {
         return;
@@ -38,7 +38,7 @@ export function launchSimulator(): void {
         cwd: path.resolve(path.dirname(configJson.simExe))
     };
 
-    if (Globals.debug) {
+    if (SnakyState.debug) {
         console.debug("Launching simulator: " + configJson.simExe + " " + args.join(" "));
     }
 
@@ -52,7 +52,7 @@ export function launchSimulator(): void {
 }
 
 export function previewPlay(): void {
-    const comm = Globals.comm;
+    const comm = SnakyState.comm;
 
     if (comm === null || !comm.server.isRunning) {
         const warningMessage = nls.localize("snaky.warning.rpcServerNotRunning", "BVSP server is not running.");
@@ -64,7 +64,7 @@ export function previewPlay(): void {
 }
 
 export function previewPause(): void {
-    const comm = Globals.comm;
+    const comm = SnakyState.comm;
 
     if (comm === null || !comm.server.isRunning) {
         const warningMessage = nls.localize("snaky.warning.rpcServerNotRunning", "BVSP server is not running.");
@@ -76,7 +76,7 @@ export function previewPause(): void {
 }
 
 export function previewStop(): void {
-    const comm = Globals.comm;
+    const comm = SnakyState.comm;
 
     if (comm === null || !comm.server.isRunning) {
         const warningMessage = nls.localize("snaky.warning.rpcServerNotRunning", "BVSP server is not running.");
