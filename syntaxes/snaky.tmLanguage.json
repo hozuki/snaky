@@ -6,27 +6,45 @@
 			"include": "#keywords"
 		},
 		{
-			"include": "#strings"
+			"include": "#commands"
+		},
+		{
+			"include": "#metadata"
 		}
 	],
 	"repository": {
 		"keywords": {
-			"patterns": [{
-				"name": "keyword.control.snaky",
-				"match": "\\b(if|while|for|return)\\b"
-			}]
-		},
-		"strings": {
-			"name": "string.quoted.double.snaky",
-			"begin": "\"",
-			"end": "\"",
 			"patterns": [
 				{
-					"name": "constant.character.escape.snaky",
-					"match": "\\\\."
+					"name": "keyword.constants.snaky",
+					"match": "\\b(true|false)\\b"
+				},
+				{
+					"name": "keyword.config.snaky",
+					"match": "\\b(none)\\b"
+				},
+				{
+					"name": "keyword.arc_curve.snaky",
+					"match": "\\b(s|b|si|so|sisi|siso|sosi|soso)\\b"
+				}
+			]
+		},
+		"commands": {
+			"patterns": [
+				{
+					"name": "entity.name.function.snaky",
+					"match": "\\b(arc|hold|timing|arctap)\\b"
+				}
+			]
+		},
+		"metadata": {
+			"patterns": [
+				{
+					"name": "meta.preprocessor.macro.snaky",
+					"match": "\\b(AudioOffset)\\b"
 				}
 			]
 		}
 	},
-	"scopeName": "source.snaky"
+	"scopeName": "source.beatmap.arcaea.snaky"
 }
