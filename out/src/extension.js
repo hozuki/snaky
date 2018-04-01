@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 const vscode = require("vscode");
+const AffValidationProvider_1 = require("./editor/AffValidationProvider");
 const Commands = require("./editor/Commands");
 const SnakyState_1 = require("./editor/SnakyState");
 const nls = require("./Nls");
@@ -19,6 +20,8 @@ function activate(context) {
     context.subscriptions.push(cmd);
     cmd = vscode.commands.registerCommand("snaky.command.previewStop", Commands.previewStop);
     context.subscriptions.push(cmd);
+    const affValidationProvider = new AffValidationProvider_1.default(context);
+    context.subscriptions.push(affValidationProvider);
     vscode.window.showInformationMessage(nls.localize("snaky.info.activated", "Snaky is loaded and activated."));
 }
 exports.activate = activate;

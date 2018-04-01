@@ -48,12 +48,12 @@
         "grammars": [
             {
                 "language": "arcaea-aff",
-                "scopeName": "source.aff",
+                "scopeName": "source.beatmap.arcaea.aff",
                 "path": "./syntaxes/aff.tmLanguage.json"
             },
             {
                 "language": "snaky",
-                "scopeName": "source.snaky",
+                "scopeName": "source.beatmap.arcaea.snaky",
                 "path": "./syntaxes/snaky.tmLanguage.json"
             }
         ],
