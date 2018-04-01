@@ -38,24 +38,24 @@
         ],
         "commands": [
             {
-                "command": "snaky.launchSimulator",
-                "title": "%snaky.launchSimulator%"
+                "command": "snaky.command.launchSimulator",
+                "title": "%snaky.command.launchSimulator%"
             },
             {
-                "command": "snaky.editReload",
-                "title": "%snaky.editReload%"
+                "command": "snaky.command.editReload",
+                "title": "%snaky.command.editReload%"
             },
             {
-                "command": "snaky.previewPlay",
-                "title": "%snaky.previewPlay%"
+                "command": "snaky.command.previewPlay",
+                "title": "%snaky.command.previewPlay%"
             },
             {
-                "command": "snaky.previewPause",
-                "title": "%snaky.previewPause%"
+                "command": "snaky.command.previewPause",
+                "title": "%snaky.command.previewPause%"
             },
             {
-                "command": "snaky.previewStop",
-                "title": "%snaky.previewStop%"
+                "command": "snaky.command.previewStop",
+                "title": "%snaky.command.previewStop%"
             }
         ]
     },

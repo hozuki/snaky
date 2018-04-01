@@ -11,7 +11,7 @@ import * as nls from "./Nls";
 export function activate(context: vscode.ExtensionContext): void {
     Globals.onActivate(context);
 
-    const launchSimulatorCommand = vscode.commands.registerCommand("snaky.launchSimulator", Commands.launchSimulator);
+    const launchSimulatorCommand = vscode.commands.registerCommand("snaky.command.launchSimulator", Commands.launchSimulator);
     context.subscriptions.push(launchSimulatorCommand);
 
     vscode.window.showInformationMessage(nls.localize("snaky.info.activated", "Snaky is loaded and activated."));
