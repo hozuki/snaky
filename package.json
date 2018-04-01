@@ -18,18 +18,33 @@
     "contributes": {
         "languages": [
             {
+                "id": "arcaea-aff",
+                "aliases": [
+                    "aff"
+                ],
+                "extensions": [
+                    ".aff"
+                ],
+                "configuration": "./languages/aff-language-configuration.json"
+            },
+            {
                 "id": "snaky",
                 "aliases": [
-                    "Snaky",
-                    "snaky"
+                    "snaky",
+                    "Snaky"
                 ],
                 "extensions": [
                     ".snaky"
                 ],
-                "configuration": "./language-configuration.json"
+                "configuration": "./languages/snaky-language-configuration.json"
             }
         ],
         "grammars": [
+            {
+                "language": "arcaea-aff",
+                "scopeName": "source.aff",
+                "path": "./syntaxes/aff.tmLanguage.json"
+            },
             {
                 "language": "snaky",
                 "scopeName": "source.snaky",

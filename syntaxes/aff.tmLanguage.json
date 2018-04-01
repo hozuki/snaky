@@ -1,0 +1,50 @@
+{
+	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+	"name": "Arcaea AFF",
+	"patterns": [
+		{
+			"include": "#keywords"
+		},
+		{
+			"include": "#commands"
+		},
+		{
+			"include": "#metadata"
+		}
+	],
+	"repository": {
+		"keywords": {
+			"patterns": [
+				{
+					"name": "keyword.constants.aff",
+					"match": "\\b(true|false)\\b"
+				},
+				{
+					"name": "keyword.config.aff",
+					"match": "\\b(none)\\b"
+				},
+				{
+					"name": "keyword.arc_curve.aff",
+					"match": "\\b(s|b|si|so|sisi|siso|sosi|soso)\\b"
+				}
+			]
+		},
+		"commands": {
+			"patterns": [
+				{
+					"name": "entity.name.function.aff",
+					"match": "\\b(arc|hold|timing|arctap)\\b"
+				}
+			]
+		},
+		"metadata": {
+			"patterns": [
+				{
+					"name": "meta.preprocessor.macro.aff",
+					"match": "\\b(AudioOffset)\\b"
+				}
+			]
+		}
+	},
+	"scopeName": "source.aff"
+}
