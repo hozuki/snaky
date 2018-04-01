@@ -29,7 +29,7 @@ export default class SnakyComm extends DisposableBase {
     }
 
     @Override()
-    onDispose(): void {
+    disposeInternal(): void {
         this._server.dispose();
     }
 

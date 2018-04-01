@@ -29,12 +29,12 @@ class SnakyComm extends DisposableBase_1.default {
     set simulatorServerUri(v) {
         this._simulatorServerUri = v;
     }
-    onDispose() {
+    disposeInternal() {
         this._server.dispose();
     }
 }
 __decorate([
     Override_1.default()
-], SnakyComm.prototype, "onDispose", null);
+], SnakyComm.prototype, "disposeInternal", null);
 exports.default = SnakyComm;
 //# sourceMappingURL=SnakyComm.js.map

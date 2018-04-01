@@ -34,14 +34,21 @@ let DisposableBase = class DisposableBase extends events_1.EventEmitter {
         if (this.isDisposed) {
             return;
         }
-        this.onDispose();
+        this.disposeInternal();
         this._isDisposed = true;
         this.emit("disposed");
+        this.removeAllListeners("disposed");
+    }
+    onDispose(listener, thisArgs) {
+        if (thisArgs !== undefined) {
+            listener = listener.bind(thisArgs);
+        }
+        this.addListener("disposed", listener);
     }
     /**
      * Disposing logic for child classes.
      */
-    onDispose() {
+    disposeInternal() {
     }
 };
 DisposableBase = __decorate([

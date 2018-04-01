@@ -52,7 +52,7 @@ class JsonRpcServer extends DisposableBase_1.default {
     get isRunning() {
         return this._server.listening;
     }
-    onDispose() {
+    disposeInternal() {
         if (this.isRunning) {
             this.stop();
         }
@@ -212,6 +212,6 @@ class JsonRpcServer extends DisposableBase_1.default {
 }
 __decorate([
     Override_1.default()
-], JsonRpcServer.prototype, "onDispose", null);
+], JsonRpcServer.prototype, "disposeInternal", null);
 exports.default = JsonRpcServer;
 //# sourceMappingURL=JsonRpcServer.js.map

@@ -25,17 +25,27 @@ export default abstract class DisposableBase extends EventEmitter implements IDi
             return;
         }
 
-        this.onDispose();
+        this.disposeInternal();
 
         this._isDisposed = true;
 
         this.emit("disposed");
+
+        this.removeAllListeners("disposed");
+    }
+
+    onDispose(listener: (...args: any[]) => void, thisArgs?: any): void {
+        if (thisArgs !== undefined) {
+            listener = listener.bind(thisArgs);
+        }
+
+        this.addListener("disposed", listener);
     }
 
     /**
      * Disposing logic for child classes.
      */
-    protected onDispose(): void {
+    protected disposeInternal(): void {
     }
 
     private _isDisposed: boolean = false;
