@@ -5,6 +5,7 @@ import * as nls from "../Nls";
 import JsonRpcServer from "../rpc/JsonRpcServer";
 import ServerRpcContext from "../rpc/ServerRpcContext";
 import {CommonMethodNames} from "./bvs/CommonMethodNames";
+import GeneralSimLaunchedNotificationParameter from "./bvs/SimLaunchedNotificationParameter";
 import SnakyComm from "./SnakyComm";
 import SnakyConfig from "./SnakyConfig";
 import SnakyWorkspaceConfig from "./SnakyWorkspaceConfig";
@@ -19,13 +20,14 @@ export default class SnakyServer extends JsonRpcServer {
     protected onSimLaunched(context: ServerRpcContext): void {
         const params = context.message.params as any[];
 
-        // const p = params[0] as GeneralSimLaunchedNotificationParameter;
+        const p0 = params[0] as GeneralSimLaunchedNotificationParameter;
 
-        // this._comm.simulatorServerUri = p.server_uri;
-        this._comm.simulatorServerUri = params[0];
+        this._comm.simulatorServerUri = p0.server_uri;
+        // this._comm.simulatorServerUri = params[0];
 
         if (SnakyConfig.debug) {
-            console.debug("Simulator server URI: " + params[0]);
+            // console.debug("Simulator server URI: " + params[0]);
+            console.debug("Simulator server URI: ", p0.server_uri);
         }
 
         context.httpContext.ok();
@@ -33,8 +35,8 @@ export default class SnakyServer extends JsonRpcServer {
         const configJson = SnakyWorkspaceConfig.load();
 
         if (configJson !== null) {
-            const infoMessageTemplate = nls.localize("snaky.info.simExeLaunched", "Launched simulator \"{0}\".");
-            const infoMessage = CommonUtils.formatString(infoMessageTemplate, configJson.simName);
+            const infoMessageTemplate = nls.localize("snaky.info.simExeLaunched", "Simulator \"{0}\" launched on {1}.");
+            const infoMessage = CommonUtils.formatString(infoMessageTemplate, configJson.simName, p0.server_uri);
             vscode.window.showInformationMessage(infoMessage);
         }
     }

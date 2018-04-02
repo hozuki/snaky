@@ -6,7 +6,7 @@
     "snaky.command.previewStop": "Snaky: 停止播放",
     "snaky.info.activated": "Snaky 已加载完毕并已激活。",
     "snaky.info.simExeLaunching": "正在启动模拟器 \"{0}\"。",
-    "snaky.info.simExeLaunched": "已启动模拟器 \"{0}\"。",
+    "snaky.info.simExeLaunched": "位于 {1} 上的模拟器 \"{0}\" 已启动。",
     "snaky.info.simulatorReady": "模拟器 \"{0}\" 已准备完毕。",
     "snaky.info.simulatorExited": "模拟器 \"{0}\" 已退出。",
     "snaky.warning.rpcServerNotRunning": "BVSP 服务器未运行。",

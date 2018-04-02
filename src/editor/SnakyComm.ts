@@ -1,3 +1,4 @@
+import * as util from "util";
 import Override from "../common/annotations/Override";
 import DisposableBase from "../DisposableBase";
 import SnakyClient from "./SnakyClient";
@@ -28,6 +29,10 @@ export default class SnakyComm extends DisposableBase {
     }
 
     set simulatorServerUri(v: string | null) {
+        if (!util.isString(v)) {
+            v = null;
+        }
+
         this._simulatorServerUri = v;
 
         const statusBarItems = this._snakyState.statusBarItems;

@@ -32,14 +32,14 @@ export default class SnakyClient extends JsonRpcClient {
     }
 
     async sendReloadRequest(beatmapFile: string, beatmapIndex: number, beatmapOffset: number, backgroundMusicFile: string): Promise<ResponseMessage | null> {
-        const p1: EditReloadRequestParameter = {
+        const param0: EditReloadRequestParameter = {
             beatmap_file: beatmapFile,
             beatmap_index: beatmapIndex,
             beatmap_offset: beatmapOffset,
             background_music_file: backgroundMusicFile
         };
 
-        const params = [p1];
+        const params = [param0];
 
         return this.safeSendRequest(CommonMethodNames.editReload, params);
     }

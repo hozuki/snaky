@@ -6,7 +6,7 @@
     "snaky.command.previewStop": "Snaky: Stop Playback",
     "snaky.info.activated": "Snaky is loaded and activated.",
     "snaky.info.simExeLaunching": "Launching simulator \"{0}\".",
-    "snaky.info.simExeLaunched": "Launched simulator \"{0}\".",
+    "snaky.info.simExeLaunched": "Simulator \"{0}\" launched on {1}.",
     "snaky.info.simulatorReady": "Simulator \"{0}\" is ready.",
     "snaky.info.simulatorExited": "Simulator \"{0}\" has exited.",
     "snaky.warning.rpcServerNotRunning": "BVSP server is not running.",

@@ -39,10 +39,12 @@ export default (snakyState: SnakyState) => {
                 return;
             }
 
+            const endPoint = comm.server.endPoint;
+
             const argsCommandLine = configJson.simArgs
-                .replace("%server_uri%", comm.server.endPoint.address)
+                .replace("%server_uri%", `http://${endPoint.address}:${endPoint.port}/`)
                 // Legacy
-                .replace("%editor_port%", comm.server.endPoint.port.toString());
+                .replace("%editor_port%", endPoint.port.toString());
             const args = stringArgv(argsCommandLine);
             const execOptions: child_process.SpawnOptions = {
                 cwd: path.resolve(path.dirname(configJson.simExe))
