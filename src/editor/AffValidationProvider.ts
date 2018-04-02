@@ -26,7 +26,7 @@ export default class AffValidationProvider extends DisposableBase {
         vscode.workspace.onDidSaveTextDocument(this.__onDidSaveTextDocument, this);
     }
 
-    disposeInternal(): void {
+    protected disposeInternal(): void {
         super.disposeInternal();
     }
 

@@ -1,36 +1,37 @@
 import * as vscode from "vscode";
 import SnakyComm from "./SnakyComm";
+import StatusBarItems from "./StatusBarItems";
 
-let $comm: SnakyComm | null = null;
+export default class SnakyState {
 
-const $debug = true;
+    activate(context: vscode.ExtensionContext): void {
+        const comm = new SnakyComm(this);
+        context.subscriptions.push(comm);
 
-/**
- * Global static state and configuration for Snaky.
- */
-export default abstract class SnakyState {
+        this._comm = comm;
 
-    /**
-     * Gets whether debug mode is on.
-     * @returns {boolean} {@see true} if debug mode is on, otherwise {@see false}.
-     */
-    static get debug(): boolean {
-        return $debug;
+        comm.server.start();
+
+        const statusBarItems = new StatusBarItems(this,context);
+        context.subscriptions.push(statusBarItems);
+
+        this._statusBarItems = statusBarItems;
+
+        statusBarItems.updateStatusBar();
     }
 
-    static onActivate(context: vscode.ExtensionContext): void {
-        $comm = new SnakyComm();
-
-        context.subscriptions.push(vscode.Disposable.from($comm));
-
-        $comm.server.start();
+    deactivate(): void {
     }
 
-    static onDeactivate(): void {
+    get comm(): SnakyComm | null {
+        return this._comm;
     }
 
-    static get comm(): SnakyComm | null {
-        return $comm;
+    get statusBarItems():StatusBarItems | null {
+        return this._statusBarItems;
     }
+
+    private _comm:SnakyComm | null = null;
+    private _statusBarItems:StatusBarItems | null = null;
 
 }

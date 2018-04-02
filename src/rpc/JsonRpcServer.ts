@@ -46,7 +46,7 @@ export default class JsonRpcServer extends DisposableBase {
     }
 
     @Override()
-    disposeInternal(): void {
+    protected disposeInternal(): void {
         if (this.isRunning) {
             this.stop();
         }

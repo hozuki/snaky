@@ -3,31 +3,34 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from "vscode";
 import AffValidationProvider from "./editor/AffValidationProvider";
-import * as Commands from "./editor/Commands";
+import Commands from "./editor/Commands";
 import SnakyState from "./editor/SnakyState";
 import * as nls from "./Nls";
+
+const snakyState = new SnakyState();
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext): void {
-    SnakyState.onActivate(context);
+    snakyState.activate(context);
+
+    const commands = Commands(snakyState)();
 
     let cmd: vscode.Disposable;
 
-    cmd = vscode.commands.registerCommand("snaky.command.launchSimulator", Commands.launchSimulator);
+    cmd = vscode.commands.registerCommand("snaky.command.launchSimulator", commands.launchSimulator);
     context.subscriptions.push(cmd);
 
-    cmd = vscode.commands.registerCommand("snaky.command.previewPlay", Commands.previewPlay);
+    cmd = vscode.commands.registerCommand("snaky.command.previewPlay", commands.previewPlay);
     context.subscriptions.push(cmd);
 
-    cmd = vscode.commands.registerCommand("snaky.command.previewPause", Commands.previewPause);
+    cmd = vscode.commands.registerCommand("snaky.command.previewPause", commands.previewPause);
     context.subscriptions.push(cmd);
 
-    cmd = vscode.commands.registerCommand("snaky.command.previewStop", Commands.previewStop);
+    cmd = vscode.commands.registerCommand("snaky.command.previewStop", commands.previewStop);
     context.subscriptions.push(cmd);
 
     const affValidationProvider = new AffValidationProvider(context);
-
     context.subscriptions.push(affValidationProvider);
 
     vscode.window.showInformationMessage(nls.localize("snaky.info.activated", "Snaky is loaded and activated."));
@@ -35,5 +38,5 @@ export function activate(context: vscode.ExtensionContext): void {
 
 // this method is called when your extension is deactivated
 export function deactivate(): void {
-    SnakyState.onDeactivate();
+    snakyState.deactivate();
 }
