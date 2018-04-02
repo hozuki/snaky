@@ -31,23 +31,35 @@ export default class AffValidationProvider extends DisposableBase {
     }
 
     private __onDidOpenTextDocument(e: vscode.TextDocument): void {
-        validateFile(e, this._diagCollection);
+        if (shouldValidate(e)) {
+            validateFile(e, this._diagCollection);
+        }
     }
 
     private __onDidChangeTextDocument(e: vscode.TextDocumentChangeEvent): void {
-        validateFile(e.document, this._diagCollection);
+        if (shouldValidate(e.document)) {
+            validateFile(e.document, this._diagCollection);
+        }
     }
 
     private __onWillSaveTextDocument(e: vscode.TextDocumentWillSaveEvent): void {
-        validateFile(e.document, this._diagCollection);
+        if (shouldValidate(e.document)) {
+            validateFile(e.document, this._diagCollection);
+        }
     }
 
     private __onDidSaveTextDocument(e: vscode.TextDocument): void {
-        validateFile(e, this._diagCollection);
+        if (shouldValidate(e)) {
+            validateFile(e, this._diagCollection);
+        }
     }
 
     private readonly _diagCollection: vscode.DiagnosticCollection;
 
+}
+
+function shouldValidate(doc: vscode.TextDocument): boolean {
+    return doc.languageId === "arcaea-aff";
 }
 
 function validateFile(doc: vscode.TextDocument, diagCollection: vscode.DiagnosticCollection): void {
@@ -150,28 +162,28 @@ function validateFile(doc: vscode.TextDocument, diagCollection: vscode.Diagnosti
             matches = $cmdTimingRegexp.exec(line.text);
         }
 
-        if (matches === null){
+        if (matches === null) {
             pushDiagLine(line.range, "Invalid \"timing\" command. Did you miss \";\" at the end of line?", vscode.DiagnosticSeverity.Error);
             return;
         }
     }
 
     function checkCmdFloor(line: vscode.TextLine, matches: RegExpMatchArray | null): void {
-        if (matches === null){
+        if (matches === null) {
             pushDiagLine(line.range, "Invalid floor note. Did you miss \";\" at the end of line?", vscode.DiagnosticSeverity.Error);
             return;
         }
     }
 
     function checkCmdHold(line: vscode.TextLine, matches: RegExpMatchArray | null): void {
-        if (matches === null){
+        if (matches === null) {
             pushDiagLine(line.range, "Invalid \"hold\" command. Did you miss \";\" at the end of line?", vscode.DiagnosticSeverity.Error);
             return;
         }
     }
 
     function checkCmdArc(line: vscode.TextLine, matches: RegExpMatchArray | null): void {
-        if (matches === null){
+        if (matches === null) {
             pushDiagLine(line.range, "Invalid \"arc\" command. Did you miss \";\" at the end of line?", vscode.DiagnosticSeverity.Error);
             return;
         }
@@ -200,7 +212,7 @@ function validateFile(doc: vscode.TextDocument, diagCollection: vscode.Diagnosti
     }
 
     function checkCmdCamera(line: vscode.TextLine, matches: RegExpMatchArray | null): void {
-        if (matches === null){
+        if (matches === null) {
             pushDiagLine(line.range, "Invalid \"camera\" command. Did you miss \";\" at the end of line?", vscode.DiagnosticSeverity.Error);
             return;
         }

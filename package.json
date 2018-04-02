@@ -17,7 +17,8 @@
         "Other"
     ],
     "activationEvents": [
-        "workspaceContains:/snaky.json"
+        "onLanguage:arcaea-aff",
+        "onLanguage:snaky"
     ],
     "main": "./out/src/extension",
     "contributes": {
