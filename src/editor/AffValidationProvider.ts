@@ -95,14 +95,14 @@ function validateFile(doc: vscode.TextDocument, diagCollection: vscode.Diagnosti
         const directive = "AudioOffset:";
 
         if (!line.text.startsWith(directive)) {
-            pushDiagLine(line.range, "The first line should start with \"AudioOffset:\" directive.", vscode.DiagnosticSeverity.Error);
+            pushDiagLine(line, `The first line should start with \"${directive}\" directive.`, vscode.DiagnosticSeverity.Error);
             return;
         }
 
         const audioOffsetStr = line.text.substr(directive.length);
 
         if (!$pureIntegerRegexp.test(audioOffsetStr)) {
-            pushDiag(line.lineNumber, directive.length, line.lineNumber, line.text.length,
+            pushDiag(line.lineNumber, directive.length, line.text.length,
                 `Invalid audio offset value: \"${audioOffsetStr}\". Expects integer.`, vscode.DiagnosticSeverity.Error);
             return;
         }
@@ -112,7 +112,7 @@ function validateFile(doc: vscode.TextDocument, diagCollection: vscode.Diagnosti
         const separator = "-";
 
         if (line.text !== separator) {
-            pushDiagLine(line.range, `The second line should be \"${separator}\".`, vscode.DiagnosticSeverity.Error);
+            pushDiagLine(line, `The second line should be \"${separator}\".`, vscode.DiagnosticSeverity.Error);
             return;
         }
     }
@@ -148,14 +148,14 @@ function validateFile(doc: vscode.TextDocument, diagCollection: vscode.Diagnosti
         }
 
         if (!checked) {
-            pushDiagLine(line.range, "Cannot recognize as an AFF command: " + testText, vscode.DiagnosticSeverity.Error);
+            pushDiagLine(line, "Cannot recognize as an AFF command: " + testText, vscode.DiagnosticSeverity.Error);
         }
     }
 
     function checkCmdTiming(line: vscode.TextLine, matches: RegExpMatchArray | null, recheck: boolean): void {
         if (recheck) {
             if (!$cmdTimingRegexp.test(line.text)) {
-                pushDiagLine(line.range, "Expects \"timing\" command.", vscode.DiagnosticSeverity.Error);
+                pushDiagLine(line, "Expects \"timing\" command.", vscode.DiagnosticSeverity.Error);
                 return;
             }
 
@@ -163,28 +163,28 @@ function validateFile(doc: vscode.TextDocument, diagCollection: vscode.Diagnosti
         }
 
         if (matches === null) {
-            pushDiagLine(line.range, "Invalid \"timing\" command. Did you miss \";\" at the end of line?", vscode.DiagnosticSeverity.Error);
+            pushDiagLine(line, "Invalid \"timing\" command. Did you miss \";\" at the end of line?", vscode.DiagnosticSeverity.Error);
             return;
         }
     }
 
     function checkCmdFloor(line: vscode.TextLine, matches: RegExpMatchArray | null): void {
         if (matches === null) {
-            pushDiagLine(line.range, "Invalid floor note. Did you miss \";\" at the end of line?", vscode.DiagnosticSeverity.Error);
+            pushDiagLine(line, "Invalid floor note. Did you miss \";\" at the end of line?", vscode.DiagnosticSeverity.Error);
             return;
         }
     }
 
     function checkCmdHold(line: vscode.TextLine, matches: RegExpMatchArray | null): void {
         if (matches === null) {
-            pushDiagLine(line.range, "Invalid \"hold\" command. Did you miss \";\" at the end of line?", vscode.DiagnosticSeverity.Error);
+            pushDiagLine(line, "Invalid \"hold\" command. Did you miss \";\" at the end of line?", vscode.DiagnosticSeverity.Error);
             return;
         }
     }
 
     function checkCmdArc(line: vscode.TextLine, matches: RegExpMatchArray | null): void {
         if (matches === null) {
-            pushDiagLine(line.range, "Invalid \"arc\" command. Did you miss \";\" at the end of line?", vscode.DiagnosticSeverity.Error);
+            pushDiagLine(line, "Invalid \"arc\" command. Did you miss \";\" at the end of line?", vscode.DiagnosticSeverity.Error);
             return;
         }
 
@@ -201,7 +201,7 @@ function validateFile(doc: vscode.TextDocument, diagCollection: vscode.Diagnosti
             for (const segment of arcTapSegments) {
                 if (!$cmdArcTapRegexp.test(segment)) {
                     const errorStartCharIndex = arcTapContentStartIndex + charIndexInArcTapContentText;
-                    pushDiag(line.lineNumber, errorStartCharIndex, line.lineNumber, errorStartCharIndex + segment.length,
+                    pushDiag(line.lineNumber, errorStartCharIndex, errorStartCharIndex + segment.length,
                         "Expects \"arctap\" command.", vscode.DiagnosticSeverity.Error);
                 }
 
@@ -213,18 +213,42 @@ function validateFile(doc: vscode.TextDocument, diagCollection: vscode.Diagnosti
 
     function checkCmdCamera(line: vscode.TextLine, matches: RegExpMatchArray | null): void {
         if (matches === null) {
-            pushDiagLine(line.range, "Invalid \"camera\" command. Did you miss \";\" at the end of line?", vscode.DiagnosticSeverity.Error);
+            pushDiagLine(line, "Invalid \"camera\" command. Did you miss \";\" at the end of line?", vscode.DiagnosticSeverity.Error);
             return;
         }
     }
 
-    function pushDiagLine(range: vscode.Range, message: string, severity: vscode.DiagnosticSeverity): void {
+    /**
+     * Pushes a diagnostic message, whose range is a given value.
+     * @param {"vscode".Range} range Given range.
+     * @param {string} message Diagnostic message.
+     * @param {"vscode".DiagnosticSeverity} severity Severity of the message.
+     */
+    function pushDiagRange(range: vscode.Range, message: string, severity: vscode.DiagnosticSeverity): void {
         const diag = new vscode.Diagnostic(range, message, severity);
         diags.push(diag);
     }
 
-    function pushDiag(startLine: number, startChar: number, endLine: number, endChar: number, message: string, severity: vscode.DiagnosticSeverity): void {
-        const errorRange = new vscode.Range(startLine, startChar, endLine, endChar);
+    /**
+     * Pushes a diagnostic message, whose range is a given value.
+     * @param {"vscode".TextLine} line The {@see "vscode".TextLine}.
+     * @param {string} message Diagnostic message.
+     * @param {"vscode".DiagnosticSeverity} severity Severity of the message.
+     */
+    function pushDiagLine(line: vscode.TextLine, message: string, severity: vscode.DiagnosticSeverity): void {
+        pushDiagRange(line.range, message, severity);
+    }
+
+    /**
+     * Pushes a diagnostic message, whose range is on one line.
+     * @param {number} lineNumber Line number.
+     * @param {number} startChar Start character index.
+     * @param {number} endChar End character index.
+     * @param {string} message Diagnostic message.
+     * @param {"vscode".DiagnosticSeverity} severity Severity of the message.
+     */
+    function pushDiag(lineNumber: number, startChar: number, endChar: number, message: string, severity: vscode.DiagnosticSeverity): void {
+        const errorRange = new vscode.Range(lineNumber, startChar, lineNumber, endChar);
         const diag = new vscode.Diagnostic(errorRange, message, severity);
         diags.push(diag);
     }
