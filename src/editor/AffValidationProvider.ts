@@ -498,12 +498,12 @@ function validateFile(doc: vscode.TextDocument, diagCollection: vscode.Diagnosti
                             arcTapErrored = true;
                         }
 
-                        const arcTapMatches = $reg.cmdArcTap.exec(segmentTrimmed);
-                        let arcTapParamString: string | null = null;
-                        let arcTapParamStringStartIndex = 0;
-                        let arcTapParamStringEndIndex = 0;
-
                         if (!arcTapErrored) {
+                            const arcTapMatches = $reg.cmdArcTap.exec(segmentTrimmed);
+                            let arcTapParamString: string | null = null;
+                            let arcTapParamStringStartIndex = 0;
+                            let arcTapParamStringEndIndex = 0;
+
                             if (util.isNullOrUndefined(arcTapMatches) || arcTapMatches.length !== 2) {
                                 pushDiag(line.lineNumber, arcTapSegmentCharStartIndex, arcTapSegmentCharEndIndex,
                                     "Invalid \"arctap\" command.", vscode.DiagnosticSeverity.Error);
@@ -521,41 +521,40 @@ function validateFile(doc: vscode.TextDocument, diagCollection: vscode.Diagnosti
                                     arcTapErrored = true;
                                 }
                             }
-                        }
 
-                        if (!arcTapErrored) {
-                            if ($reg.whitespace.test(segment)) {
-                                pushDiag(line.lineNumber, arcTapSegmentCharStartIndex, arcTapSegmentCharEndIndex,
-                                    "\"arctap\" array should not contain whitespace characters.", vscode.DiagnosticSeverity.Warning);
+                            if (!arcTapErrored) {
+                                if ($reg.whitespace.test(segment)) {
+                                    pushDiag(line.lineNumber, arcTapSegmentCharStartIndex, arcTapSegmentCharEndIndex,
+                                        "\"arctap\" array should not contain whitespace characters.", vscode.DiagnosticSeverity.Warning);
+                                }
                             }
-                        }
 
+                            if (!arcTapErrored) {
+                                if (!util.isNullOrUndefined(arcTapParamString)) {
+                                    const arcTapParamValue = Number.parseInt(arcTapParamString);
 
-                        if (!arcTapErrored) {
-                            if (!util.isNullOrUndefined(arcTapParamString)) {
-                                const arcTapParamValue = Number.parseInt(arcTapParamString);
-
-                                if (!util.isUndefined(paramsCheckResult.arcStartTime) &&
-                                    !util.isUndefined(paramsCheckResult.arcEndTime) &&
-                                    paramsCheckResult.arcStartTime < paramsCheckResult.arcEndTime) {
-                                    if (arcTapParamValue < paramsCheckResult.arcStartTime || paramsCheckResult.arcEndTime < arcTapParamValue) {
-                                        pushDiag(line.lineNumber, arcTapParamStringStartIndex, arcTapParamStringEndIndex,
-                                            `Time of \"arctap\" (${arcTapParamValue}) may be invalid. It should be between ${paramsCheckResult.arcStartTime} and ${paramsCheckResult.arcEndTime}.`,
-                                            vscode.DiagnosticSeverity.Warning);
+                                    if (!util.isUndefined(paramsCheckResult.arcStartTime) &&
+                                        !util.isUndefined(paramsCheckResult.arcEndTime) &&
+                                        paramsCheckResult.arcStartTime < paramsCheckResult.arcEndTime) {
+                                        if (arcTapParamValue < paramsCheckResult.arcStartTime || paramsCheckResult.arcEndTime < arcTapParamValue) {
+                                            pushDiag(line.lineNumber, arcTapParamStringStartIndex, arcTapParamStringEndIndex,
+                                                `Time of \"arctap\" (${arcTapParamValue}) may be invalid. It should be between ${paramsCheckResult.arcStartTime} and ${paramsCheckResult.arcEndTime}.`,
+                                                vscode.DiagnosticSeverity.Warning);
+                                        }
                                     }
-                                }
 
-                                if (!util.isUndefined(lastArcTapHitTime)) {
-                                    if (arcTapParamValue <= lastArcTapHitTime) {
-                                        pushDiag(line.lineNumber, arcTapParamStringStartIndex, arcTapParamStringEndIndex,
-                                            `Time of \"arctap\" (${arcTapParamValue}) is less than last \"arctap\" (${lastArcTapHitTime}).`,
-                                            vscode.DiagnosticSeverity.Warning);
+                                    if (!util.isUndefined(lastArcTapHitTime)) {
+                                        if (arcTapParamValue <= lastArcTapHitTime) {
+                                            pushDiag(line.lineNumber, arcTapParamStringStartIndex, arcTapParamStringEndIndex,
+                                                `Time of \"arctap\" (${arcTapParamValue}) is less than last \"arctap\" (${lastArcTapHitTime}).`,
+                                                vscode.DiagnosticSeverity.Warning);
+                                        }
                                     }
-                                }
 
-                                lastArcTapHitTime = arcTapParamValue;
-                            } else {
-                                console.warn("Should not happen.");
+                                    lastArcTapHitTime = arcTapParamValue;
+                                } else {
+                                    console.warn("Should not happen.");
+                                }
                             }
                         }
 
@@ -563,8 +562,15 @@ function validateFile(doc: vscode.TextDocument, diagCollection: vscode.Diagnosti
                             lastArcTapHitTime = undefined;
                         }
 
+                        if (!arcTapErrored) {
+                            if (segment.length > segmentTrimmed.length) {
+                                pushDiag(line.lineNumber, arcTapSegmentCharStartIndex, arcTapSegmentCharEndIndex,
+                                    "\"arctap\" command should not contain whitespace characters.", vscode.DiagnosticSeverity.Warning);
+                            }
+                        }
+
                         // Don't forget the ",".
-                        charIndexInArcTapContentText += segment.length + 1;
+                        charIndexInArcTapContentText += segment.length + ",".length;
                     }
                 } else {
                     pushDiag(line.lineNumber, arcTapContentStartIndex, arcTapContentEndIndex,
