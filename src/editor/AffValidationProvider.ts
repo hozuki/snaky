@@ -23,6 +23,7 @@ const $reg = {
 
 const $validTrackNumbers = [1, 2, 3, 4];
 const $validArcColors = [0, 1];
+const $validArcColorsNotSuggested = [2, 3];
 const $validIsTraceValues = ["true", "false"];
 const $validEasingFunctions = ["b", "s", "si", "so", "sisi", "siso", "sosi", "soso"];
 const $validEasingFunctionsStr = $validEasingFunctions.join(", ");
@@ -409,11 +410,24 @@ function validateFile(doc: vscode.TextDocument, diagCollection: vscode.Diagnosti
             } else {
                 const arcColorValue = Number.parseInt(params[7].text.trim());
 
-                if ($validArcColors.indexOf(arcColorValue) < 0) {
+                let isArcColorValid = false;
+
+                if ($validArcColors.indexOf(arcColorValue) >= 0) {
+                    isArcColorValid = true;
+                }
+
+                if ($validArcColorsNotSuggested.indexOf(arcColorValue) >= 0) {
+                    pushDiag(line.lineNumber, params[7].charStartIndex, params[7].charEndIndex,
+                        `The color (${arcColorValue}) is one of the extended colors. It does not guarantee compatibility.`,
+                        vscode.DiagnosticSeverity.Warning);
+                    isArcColorValid = true;
+                }
+
+                if (isArcColorValid) {
+                    warnIfParamContainsWhitespace(line, params[7]);
+                } else {
                     pushDiag(line.lineNumber, params[7].charStartIndex, params[7].charEndIndex,
                         "Invalid color value. Expectes 0 (blue) or 1 (red).", vscode.DiagnosticSeverity.Error);
-                } else {
-                    warnIfParamContainsWhitespace(line, params[7]);
                 }
             }
 
@@ -563,7 +577,8 @@ function validateFile(doc: vscode.TextDocument, diagCollection: vscode.Diagnosti
                     const arcTapContentEndIndex = arcTapContentStartIndex + arcTapContents.length + "]".length;
 
                     pushDiag(line.lineNumber, arcTapContentStartIndex, arcTapContentEndIndex,
-                        "\"arctap\" array cannot appear in non-trace arcs.", vscode.DiagnosticSeverity.Error);
+                        "\"arctap\" array appearing after playable arc (red or blue) will change it to trace arc (translucent gray).",
+                        vscode.DiagnosticSeverity.Warning);
                 }
             }
         }
