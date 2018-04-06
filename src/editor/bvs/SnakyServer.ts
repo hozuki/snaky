@@ -1,14 +1,14 @@
 import * as vscode from "vscode";
-import Override from "../common/annotations/Override";
-import CommonUtils from "../CommonUtils";
-import * as nls from "../Nls";
-import JsonRpcServer from "../rpc/JsonRpcServer";
-import ServerRpcContext from "../rpc/ServerRpcContext";
-import {CommonMethodNames} from "./bvs/CommonMethodNames";
-import GeneralSimLaunchedNotificationParameter from "./bvs/SimLaunchedNotificationParameter";
+import Override from "../../common/annotations/Override";
+import CommonUtils from "../../CommonUtils";
+import * as nls from "../../Nls";
+import JsonRpcServer from "../../rpc/JsonRpcServer";
+import ServerRpcContext from "../../rpc/ServerRpcContext";
+import {CommonMethodNames} from "./models/CommonMethodNames";
+import GeneralSimLaunchedNotificationParameter from "./models/SimLaunchedNotificationParameter";
 import SnakyComm from "./SnakyComm";
-import SnakyConfig from "./SnakyConfig";
-import SnakyWorkspaceConfig from "./SnakyWorkspaceConfig";
+import SnakyConfig from "../SnakyConfig";
+import SnakyWorkspaceConfig from "../SnakyWorkspaceConfig";
 
 export default class SnakyServer extends JsonRpcServer {
 
@@ -39,6 +39,8 @@ export default class SnakyServer extends JsonRpcServer {
             const infoMessage = CommonUtils.formatString(infoMessageTemplate, configJson.simName, p0.server_uri);
             vscode.window.showInformationMessage(infoMessage);
         }
+
+        this._comm.client.sendSimInitializeRequest();
     }
 
     protected onSimExited(context: ServerRpcContext): void {

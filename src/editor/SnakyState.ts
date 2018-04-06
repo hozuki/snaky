@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import SnakyComm from "./SnakyComm";
+import SnakyComm from "./bvs/SnakyComm";
 import StatusBarItems from "./StatusBarItems";
 
 export default class SnakyState {

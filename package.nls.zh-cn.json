@@ -9,6 +9,7 @@
     "snaky.info.simExeLaunched": "位于 {1} 上的模拟器 \"{0}\" 已启动。",
     "snaky.info.simulatorReady": "模拟器 \"{0}\" 已准备完毕。",
     "snaky.info.simulatorExited": "模拟器 \"{0}\" 已退出。",
+    "snaky.info.needToSaveBeforeReload": "您需要先保存当前谱面，然后才能在模拟器中加载。",
     "snaky.warning.rpcServerNotRunning": "BVSP 服务器未运行。",
     "snaky.warning.simulatorNotRunning": "未发现运行中的模拟器。",
     "snaky.error.configFileNotFound": "在当前工作区中未发现配置文件 \"snaky.json\"。",

@@ -30,6 +30,9 @@ export function activate(context: vscode.ExtensionContext): void {
     cmd = vscode.commands.registerCommand("snaky.command.previewStop", commands.previewStop);
     context.subscriptions.push(cmd);
 
+    cmd = vscode.commands.registerCommand("snaky.command.editReload", commands.editReload);
+    context.subscriptions.push(cmd);
+
     const affValidationProvider = new AffValidationProvider(context);
     context.subscriptions.push(affValidationProvider);
 

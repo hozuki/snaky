@@ -2,6 +2,7 @@ import * as child_process from "child_process";
 import * as fs from "fs";
 import * as path from "path";
 import * as stringArgv from "string-argv";
+import * as util from "util";
 import * as vscode from "vscode";
 import CommonUtils from "../CommonUtils";
 import * as nls from "../Nls";
@@ -15,7 +16,8 @@ export default (snakyState: SnakyState) => {
             launchSimulator,
             previewPlay,
             previewPause,
-            previewStop
+            previewStop,
+            editReload
         };
 
         function launchSimulator(): void {
@@ -61,6 +63,44 @@ export default (snakyState: SnakyState) => {
                 const infoMessage = CommonUtils.formatString(infoMessageTemplate, configJson.simName);
                 vscode.window.showInformationMessage(infoMessage);
             }
+        }
+
+        function editReload(): void {
+            const comm = snakyState.comm;
+
+            if (comm === null || !comm.server.isRunning) {
+                const warningMessage = nls.localize("snaky.warning.rpcServerNotRunning", "BVSP server is not running.");
+                vscode.window.showWarningMessage(warningMessage);
+                return;
+            }
+
+            const activeEditor = vscode.window.activeTextEditor;
+
+            if (util.isNullOrUndefined(activeEditor)) {
+                return;
+            }
+
+            const activeDocument = activeEditor.document;
+
+            if (activeDocument.isDirty) {
+                const warningMessage = nls.localize("snaky.info.needToSaveBeforeReload", "You need to save current beatmap before reloading it in simulator.");
+                vscode.window.showInformationMessage(warningMessage);
+                return;
+            }
+
+            const documentPath = activeDocument.uri.fsPath;
+            const documentDir = path.dirname(documentPath);
+
+            let mp3Path: string = "";
+
+            for (const fileName of fs.readdirSync(documentDir)) {
+                if (fileName.endsWith(".mp3")) {
+                    mp3Path = path.join(documentDir, fileName);
+                    break;
+                }
+            }
+
+            comm.client.sendReloadRequest(documentPath, mp3Path);
         }
 
         function previewPlay(): void {

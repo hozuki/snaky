@@ -19,7 +19,7 @@ export default class StatusBarItems extends DisposableBase {
 
         statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left);
         statusBarItem.command = "snaky.command.previewPlay";
-        statusBarItem.text = "Play";
+        statusBarItem.text = "$(triangle-right) Play";
         context.subscriptions.push(statusBarItem);
         this._previewPlay = statusBarItem;
 
@@ -31,9 +31,15 @@ export default class StatusBarItems extends DisposableBase {
 
         statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left);
         statusBarItem.command = "snaky.command.previewStop";
-        statusBarItem.text = "Stop";
+        statusBarItem.text = "$(primitive-square) Stop";
         context.subscriptions.push(statusBarItem);
         this._previewStop = statusBarItem;
+
+        statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left);
+        statusBarItem.command = "snaky.command.editReload";
+        statusBarItem.text = "$(repo-push) Reload Beatmap";
+        context.subscriptions.push(statusBarItem);
+        this._editReload = statusBarItem;
     }
 
     updateStatusBar(): void {
@@ -44,17 +50,20 @@ export default class StatusBarItems extends DisposableBase {
             this.previewPlay.hide();
             this.previewPause.hide();
             this.previewStop.hide();
+            this.editReload.hide();
         } else {
             if (comm.simulatorServerUri === null) {
                 this.launchSimulator.show();
                 this.previewPlay.hide();
                 this.previewPause.hide();
                 this.previewStop.hide();
+                this.editReload.hide();
             } else {
                 this.launchSimulator.hide();
                 this.previewPlay.show();
                 this.previewPause.show();
                 this.previewStop.show();
+                this.editReload.show();
             }
         }
     }
@@ -75,10 +84,15 @@ export default class StatusBarItems extends DisposableBase {
         return this._previewStop;
     }
 
+    get editReload(): vscode.StatusBarItem {
+        return this._editReload;
+    }
+
     private readonly _launchSimulator: vscode.StatusBarItem;
     private readonly _previewPlay: vscode.StatusBarItem;
     private readonly _previewPause: vscode.StatusBarItem;
     private readonly _previewStop: vscode.StatusBarItem;
+    private readonly _editReload: vscode.StatusBarItem;
 
     private readonly _snakyState: SnakyState;
 

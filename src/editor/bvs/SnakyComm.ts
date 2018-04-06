@@ -1,9 +1,9 @@
 import * as util from "util";
-import Override from "../common/annotations/Override";
-import DisposableBase from "../DisposableBase";
+import Override from "../../common/annotations/Override";
+import DisposableBase from "../../DisposableBase";
 import SnakyClient from "./SnakyClient";
 import SnakyServer from "./SnakyServer";
-import SnakyState from "./SnakyState";
+import SnakyState from "../SnakyState";
 
 export default class SnakyComm extends DisposableBase {
 
