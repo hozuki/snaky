@@ -79,7 +79,34 @@
                 "command": "snaky.command.previewStop",
                 "title": "%snaky.command.previewStop%"
             }
-        ]
+        ],
+        "configuration": {
+            "type": "object",
+            "title": "Snaky configuration",
+            "properties": {
+                "arcaea.snaky.defaultSimExe": {
+                    "type": [
+                        "string",
+                        "null"
+                    ],
+                    "default": null,
+                    "description": "Path to default simulator executable."
+                },
+                "arcaea.snaky.defaultSimArgs": {
+                    "type": [
+                        "string",
+                        "null"
+                    ],
+                    "default": null,
+                    "description": "Arguments to launch the default simulator."
+                },
+                "arcaea.snaky.defaultSimName": {
+                    "type": "string",
+                    "default": "ArcaeaSim",
+                    "description": "Name of the default simulator."
+                }
+            }
+        }
     },
     "scripts": {
         "vscode:prepublish": "npm run build",

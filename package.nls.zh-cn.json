@@ -13,5 +13,6 @@
     "snaky.warning.rpcServerNotRunning": "BVSP 服务器未运行。",
     "snaky.warning.simulatorNotRunning": "未发现运行中的模拟器。",
     "snaky.error.configFileNotFound": "在当前工作区中未发现配置文件 \"snaky.json\"。",
-    "snaky.error.simExeNotFound": "未找到模拟器程序文件 '{0}'。"
+    "snaky.error.simExeNotFound": "未找到模拟器程序文件 '{0}'。",
+    "snaky.error.simConfigValueError": "模拟器配置中出现错误，值不能为 null 或未指定。请确认您正确配置了 snaky.json 和/或默认设置。"
 }

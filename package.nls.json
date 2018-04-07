@@ -13,5 +13,6 @@
     "snaky.warning.rpcServerNotRunning": "BVSP server is not running.",
     "snaky.warning.simulatorNotRunning": "No active simulator found.",
     "snaky.error.configFileNotFound": "Config file \"snaky.json\" not found in current workspace.",
-    "snaky.error.simExeNotFound": "Simulator executable '{0}' is not found."
+    "snaky.error.simExeNotFound": "Simulator executable '{0}' is not found.",
+    "snaky.error.simConfigValueError": "Error(s) occurred in simulator configuration. Values cannot be null or undefined. Make sure you configured snaky.json and/or default settings correctly."
 }
