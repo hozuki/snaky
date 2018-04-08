@@ -34,7 +34,7 @@ export default class SnakyClient extends JsonRpcClient {
 
         const result = responseMessage.result as GeneralSimInitializeResponseObject;
 
-        if (util.isNullOrUndefined(result)) {
+        if (util.isUndefined(result)) {
             console.error("RPC call errored. Info:", responseMessage.error);
             return;
         }

@@ -3,6 +3,7 @@ import * as util from "util";
 import * as vscode from "vscode";
 import {BvspConstants} from "../BvspConstants";
 import JsonRpc from "./JsonRpc";
+import JsonRpcHelper from "./JsonRpcHelper";
 import RequestMessage from "./RequestMessage";
 import ResponseMessage from "./ResponseMessage";
 
@@ -31,9 +32,9 @@ export default class JsonRpcClient {
         }
 
         // TODO: AJV doesn't support validating this either...
-        // if (!JsonRpcHelper.isResponseValid(responseObj)) {
-        //     throw new TypeError("The HTTP body is not a valid JSON RPC 2.0 response object");
-        // }
+        if (!JsonRpcHelper.isResponseValid(responseObj)) {
+            throw new TypeError("The HTTP body is not a valid JSON RPC 2.0 response object");
+        }
 
         return responseObj as ResponseMessage;
     }
