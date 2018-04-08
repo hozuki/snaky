@@ -151,6 +151,12 @@ export default (snakyState: SnakyState) => {
                 }
             }
 
+            if (mp3Path.length > 0) {
+                if (!(fs.existsSync(mp3Path) && fs.lstatSync(mp3Path).isFile())) {
+                    mp3Path = "";
+                }
+            }
+
             comm.client.sendReloadRequest(documentPath, mp3Path);
         }
 
