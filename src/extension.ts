@@ -2,8 +2,8 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from "vscode";
-import AffValidationProvider from "./editor/AffValidationProvider";
 import Commands from "./editor/Commands";
+import AffValidationProvider from "./editor/dsl/AffValidationProvider";
 import SnakyState from "./editor/SnakyState";
 import * as nls from "./Nls";
 

@@ -1,6 +1,6 @@
 import * as util from "util";
 import * as vscode from "vscode";
-import DisposableBase from "../DisposableBase";
+import DisposableBase from "../../DisposableBase";
 
 // Note: For regular expressions for numbers, we don't need "+", and don't care about string starting with "0"
 // in this context.
@@ -40,37 +40,16 @@ export default class AffValidationProvider extends DisposableBase {
         this._diagCollection = diagCollection;
         context.subscriptions.push(diagCollection);
 
-        vscode.workspace.onDidOpenTextDocument(this.__onDidOpenTextDocument, this);
-        vscode.workspace.onDidChangeTextDocument(this.__onDidChangeTextDocument, this);
         vscode.workspace.onWillSaveTextDocument(this.__onWillSaveTextDocument, this);
-        vscode.workspace.onDidSaveTextDocument(this.__onDidSaveTextDocument, this);
     }
 
     protected disposeInternal(): void {
         super.disposeInternal();
     }
 
-    private __onDidOpenTextDocument(e: vscode.TextDocument): void {
-        if (shouldValidate(e)) {
-            validateFile(e, this._diagCollection);
-        }
-    }
-
-    private __onDidChangeTextDocument(e: vscode.TextDocumentChangeEvent): void {
-        if (shouldValidate(e.document)) {
-            validateFile(e.document, this._diagCollection);
-        }
-    }
-
     private __onWillSaveTextDocument(e: vscode.TextDocumentWillSaveEvent): void {
         if (shouldValidate(e.document)) {
             validateFile(e.document, this._diagCollection);
-        }
-    }
-
-    private __onDidSaveTextDocument(e: vscode.TextDocument): void {
-        if (shouldValidate(e)) {
-            validateFile(e, this._diagCollection);
         }
     }
 
