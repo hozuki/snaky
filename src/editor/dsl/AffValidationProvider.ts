@@ -1,6 +1,8 @@
 import * as util from "util";
 import * as vscode from "vscode";
 import DisposableBase from "../../DisposableBase";
+import ValidationHelper from "./ValidationHelper";
+import ValidationMode from "./ValidationMode";
 
 // Note: For regular expressions for numbers, we don't need "+", and don't care about string starting with "0"
 // in this context.
@@ -35,6 +37,8 @@ export default class AffValidationProvider extends DisposableBase {
     constructor(context: vscode.ExtensionContext) {
         super();
 
+        this._extensionContext = context;
+
         const diagCollection = vscode.languages.createDiagnosticCollection("arcaea-aff");
 
         this._diagCollection = diagCollection;
@@ -49,10 +53,11 @@ export default class AffValidationProvider extends DisposableBase {
 
     private __onWillSaveTextDocument(e: vscode.TextDocumentWillSaveEvent): void {
         if (shouldValidate(e.document)) {
-            validateFile(e.document, this._diagCollection);
+            validateFile(this._extensionContext, e.document, this._diagCollection);
         }
     }
 
+    private readonly _extensionContext: vscode.ExtensionContext;
     private readonly _diagCollection: vscode.DiagnosticCollection;
 
 }
@@ -61,8 +66,22 @@ function shouldValidate(doc: vscode.TextDocument): boolean {
     return doc.languageId === "arcaea-aff";
 }
 
-function validateFile(doc: vscode.TextDocument, diagCollection: vscode.DiagnosticCollection): void {
+function validateFile(context: vscode.ExtensionContext, doc: vscode.TextDocument, diagCollection: vscode.DiagnosticCollection): void {
     const diags: vscode.Diagnostic[] = [];
+    const validationMode = ValidationHelper.parseValidationMode(context.globalState.get("arcaea.snaky.validation.aff"));
+
+    let severityError: vscode.DiagnosticSeverity, severityWarning: vscode.DiagnosticSeverity;
+
+    switch (validationMode) {
+        case ValidationMode.TreatAsError:
+            severityError = vscode.DiagnosticSeverity.Error;
+            severityWarning = vscode.DiagnosticSeverity.Error;
+            break;
+        default:
+            severityError = vscode.DiagnosticSeverity.Error;
+            severityWarning = vscode.DiagnosticSeverity.Warning;
+            break;
+    }
 
     const lineCount = doc.lineCount;
 
@@ -94,7 +113,7 @@ function validateFile(doc: vscode.TextDocument, diagCollection: vscode.Diagnosti
         const directive = "AudioOffset:";
 
         if (!line.text.startsWith(directive)) {
-            pushDiagLine(line, `The first line should start with \"${directive}\" directive.`, vscode.DiagnosticSeverity.Error);
+            pushDiagLine(line, `The first line should start with \"${directive}\" directive.`, severityError);
             return;
         }
 
@@ -102,13 +121,13 @@ function validateFile(doc: vscode.TextDocument, diagCollection: vscode.Diagnosti
 
         if (!$reg.integer.test(audioOffsetStr.trimLeft())) {
             pushDiag(line.lineNumber, directive.length, line.text.length,
-                `Invalid audio offset value: \"${audioOffsetStr}\". Expects integer.`, vscode.DiagnosticSeverity.Error);
+                `Invalid audio offset value: \"${audioOffsetStr}\". Expects integer.`, severityError);
             return;
         }
 
         if ($reg.whitespace.test(audioOffsetStr)) {
             pushDiag(line.lineNumber, directive.length, line.text.length,
-                "AudioOffset value should not contain whitespace characters.", vscode.DiagnosticSeverity.Warning);
+                "AudioOffset value should not contain whitespace characters.", severityWarning);
             return;
         }
     }
@@ -117,7 +136,7 @@ function validateFile(doc: vscode.TextDocument, diagCollection: vscode.Diagnosti
         const separator = "-";
 
         if (line.text !== separator) {
-            pushDiagLine(line, `The second line should be \"${separator}\".`, vscode.DiagnosticSeverity.Error);
+            pushDiagLine(line, `The second line should be \"${separator}\".`, severityError);
             return;
         }
     }
@@ -153,14 +172,14 @@ function validateFile(doc: vscode.TextDocument, diagCollection: vscode.Diagnosti
         }
 
         if (!checked) {
-            pushDiagLine(line, "Cannot recognize as an AFF command: " + testText, vscode.DiagnosticSeverity.Error);
+            pushDiagLine(line, "Cannot recognize as an AFF command: " + testText, severityError);
         }
     }
 
     function checkCmdTiming(line: vscode.TextLine, matches: RegExpMatchArray | null, recheck: boolean): void {
         if (recheck) {
             if (!$reg.cmdTiming.test(line.text)) {
-                pushDiagLine(line, "Expects \"timing\" command.", vscode.DiagnosticSeverity.Error);
+                pushDiagLine(line, "Expects \"timing\" command.", severityError);
                 return;
             }
 
@@ -168,14 +187,14 @@ function validateFile(doc: vscode.TextDocument, diagCollection: vscode.Diagnosti
         }
 
         if (util.isNullOrUndefined(matches) || matches.length !== 2) {
-            pushDiagLine(line, "Invalid \"timing\" command. Did you miss \";\" at the end of line?", vscode.DiagnosticSeverity.Error);
+            pushDiagLine(line, "Invalid \"timing\" command. Did you miss \";\" at the end of line?", severityError);
             return;
         }
     }
 
     function checkCmdFloor(line: vscode.TextLine, matches: RegExpMatchArray | null): void {
         if (util.isNullOrUndefined(matches) || matches.length !== 2) {
-            pushDiagLine(line, "Invalid floor note. Did you miss \";\" at the end of line?", vscode.DiagnosticSeverity.Error);
+            pushDiagLine(line, "Invalid floor note. Did you miss \";\" at the end of line?", severityError);
             return;
         }
 
@@ -186,7 +205,7 @@ function validateFile(doc: vscode.TextDocument, diagCollection: vscode.Diagnosti
 
         if (segments.length !== 2) {
             pushDiag(line.lineNumber, charIndexStart, charIndexStart + contentString.length,
-                "Floor note should have 2 parameters.", vscode.DiagnosticSeverity.Error);
+                "Floor note should have 2 parameters.", severityError);
             return;
         }
 
@@ -194,20 +213,20 @@ function validateFile(doc: vscode.TextDocument, diagCollection: vscode.Diagnosti
 
         if (!$reg.positiveInteger.test(params[0].text.trim())) {
             pushDiag(line.lineNumber, params[0].charStartIndex, params[0].charEndIndex,
-                "Invalid parameter. Expects positive integer.", vscode.DiagnosticSeverity.Error);
+                "Invalid parameter. Expects positive integer.", severityError);
         } else {
             warnIfParamContainsWhitespace(line, params[0]);
         }
 
         if (!$reg.positiveInteger.test(params[1].text.trim())) {
             pushDiag(line.lineNumber, params[1].charStartIndex, params[1].charEndIndex,
-                "Invalid parameter. Expects positive integer.", vscode.DiagnosticSeverity.Error);
+                "Invalid parameter. Expects positive integer.", severityError);
         } else {
             const trackNumber = Number.parseInt(params[1].text.trim());
 
             if ($validTrackNumbers.indexOf(trackNumber) < 0) {
                 pushDiag(line.lineNumber, params[1].charStartIndex, params[1].charEndIndex,
-                    `Invalid track number: ${trackNumber}, expects 1, 2, 3 or 4.`, vscode.DiagnosticSeverity.Error);
+                    `Invalid track number: ${trackNumber}, expects 1, 2, 3 or 4.`, severityError);
             } else {
                 warnIfParamContainsWhitespace(line, params[1]);
             }
@@ -216,7 +235,7 @@ function validateFile(doc: vscode.TextDocument, diagCollection: vscode.Diagnosti
 
     function checkCmdHold(line: vscode.TextLine, matches: RegExpMatchArray | null): void {
         if (util.isNullOrUndefined(matches) || matches.length !== 2) {
-            pushDiagLine(line, "Invalid \"hold\" command. Did you miss \";\" at the end of line?", vscode.DiagnosticSeverity.Error);
+            pushDiagLine(line, "Invalid \"hold\" command. Did you miss \";\" at the end of line?", severityError);
             return;
         }
 
@@ -227,7 +246,7 @@ function validateFile(doc: vscode.TextDocument, diagCollection: vscode.Diagnosti
 
         if (segments.length !== 3) {
             pushDiag(line.lineNumber, charIndexStart, charIndexStart + contentString.length,
-                "Hold note should have 3 parameters.", vscode.DiagnosticSeverity.Error);
+                "Hold note should have 3 parameters.", severityError);
             return;
         }
 
@@ -235,14 +254,14 @@ function validateFile(doc: vscode.TextDocument, diagCollection: vscode.Diagnosti
 
         if (!$reg.positiveInteger.test(params[0].text.trim())) {
             pushDiag(line.lineNumber, params[0].charStartIndex, params[0].charEndIndex,
-                "Invalid parameter. Expects positive integer.", vscode.DiagnosticSeverity.Error);
+                "Invalid parameter. Expects positive integer.", severityError);
         } else {
             warnIfParamContainsWhitespace(line, params[0]);
         }
 
         if (!$reg.positiveInteger.test(params[1].text.trim())) {
             pushDiag(line.lineNumber, params[1].charStartIndex, params[1].charEndIndex,
-                "Invalid parameter. Expects positive integer.", vscode.DiagnosticSeverity.Error);
+                "Invalid parameter. Expects positive integer.", severityError);
         } else {
             warnIfParamContainsWhitespace(line, params[1]);
         }
@@ -253,18 +272,18 @@ function validateFile(doc: vscode.TextDocument, diagCollection: vscode.Diagnosti
         if (param2Value <= param1Value) {
             // TODO: Maybe stricter, e.g. param2-parm1 > 10 msecs
             pushDiag(line.lineNumber, params[0].charStartIndex, params[1].charEndIndex,
-                `Start time (${param1Value}) should be later than end time (${param2Value}).`, vscode.DiagnosticSeverity.Warning);
+                `Start time (${param1Value}) should be later than end time (${param2Value}).`, severityWarning);
         }
 
         if (!$reg.positiveInteger.test(params[2].text.trim())) {
             pushDiag(line.lineNumber, params[2].charStartIndex, params[2].charEndIndex,
-                "Invalid parameter. Expects positive integer.", vscode.DiagnosticSeverity.Error);
+                "Invalid parameter. Expects positive integer.", severityError);
         } else {
             const trackNumber = Number.parseInt(params[2].text.trim());
 
             if ($validTrackNumbers.indexOf(trackNumber) < 0) {
                 pushDiag(line.lineNumber, params[2].charStartIndex, params[2].charEndIndex,
-                    `Invalid track number: ${trackNumber}, expects 1, 2, 3 or 4.`, vscode.DiagnosticSeverity.Error);
+                    `Invalid track number: ${trackNumber}, expects 1, 2, 3 or 4.`, severityError);
             } else {
                 warnIfParamContainsWhitespace(line, params[2]);
             }
@@ -273,7 +292,7 @@ function validateFile(doc: vscode.TextDocument, diagCollection: vscode.Diagnosti
 
     function checkCmdArc(line: vscode.TextLine, matches: RegExpMatchArray | null): void {
         if (util.isNullOrUndefined(matches) || (matches.length !== 2 && matches.length !== 3)) {
-            pushDiagLine(line, "Invalid \"arc\" command. Did you miss \";\" at the end of line?", vscode.DiagnosticSeverity.Error);
+            pushDiagLine(line, "Invalid \"arc\" command. Did you miss \";\" at the end of line?", severityError);
             return;
         }
 
@@ -305,13 +324,13 @@ function validateFile(doc: vscode.TextDocument, diagCollection: vscode.Diagnosti
 
             if (segments.length !== 10) {
                 pushDiag(line.lineNumber, charIndexStart, charIndexStart + contentString.length,
-                    "Arc note should have 10 parameters.", vscode.DiagnosticSeverity.Error);
+                    "Arc note should have 10 parameters.", severityError);
                 return;
             }
 
             if (!$reg.positiveInteger.test(params[0].text.trim())) {
                 pushDiag(line.lineNumber, params[0].charStartIndex, params[0].charEndIndex,
-                    "Invalid parameter. Expects positive integer.", vscode.DiagnosticSeverity.Error);
+                    "Invalid parameter. Expects positive integer.", severityError);
             } else {
                 warnIfParamContainsWhitespace(line, params[0]);
 
@@ -320,7 +339,7 @@ function validateFile(doc: vscode.TextDocument, diagCollection: vscode.Diagnosti
 
             if (!$reg.positiveInteger.test(params[1].text.trim())) {
                 pushDiag(line.lineNumber, params[1].charStartIndex, params[1].charEndIndex,
-                    "Invalid parameter. Expects positive integer.", vscode.DiagnosticSeverity.Error);
+                    "Invalid parameter. Expects positive integer.", severityError);
             } else {
                 warnIfParamContainsWhitespace(line, params[1]);
 
@@ -328,17 +347,27 @@ function validateFile(doc: vscode.TextDocument, diagCollection: vscode.Diagnosti
             }
 
             if (!util.isUndefined(paramsCheckResult.arcStartTime) && !util.isUndefined(paramsCheckResult.arcEndTime)) {
-                // TODO: Maybe there are stricter limitations.
-                if (paramsCheckResult.arcEndTime <= paramsCheckResult.arcStartTime) {
-                    pushDiag(line.lineNumber, params[0].charStartIndex, params[1].charEndIndex,
-                        `Arc end time (${paramsCheckResult.arcEndTime}) should be later than arc start time (${paramsCheckResult.arcStartTime}).`,
-                        vscode.DiagnosticSeverity.Warning);
+                switch (validationMode) {
+                    case ValidationMode.Normal:
+                        if (paramsCheckResult.arcEndTime < paramsCheckResult.arcStartTime) {
+                            pushDiag(line.lineNumber, params[0].charStartIndex, params[1].charEndIndex,
+                                `Arc end time (${paramsCheckResult.arcEndTime}) should be no earlier than arc start time (${paramsCheckResult.arcStartTime}).`,
+                                severityWarning);
+                        }
+                        break;
+                    default:
+                        if (paramsCheckResult.arcEndTime <= paramsCheckResult.arcStartTime) {
+                            pushDiag(line.lineNumber, params[0].charStartIndex, params[1].charEndIndex,
+                                `Arc end time (${paramsCheckResult.arcEndTime}) should be later than arc start time (${paramsCheckResult.arcStartTime}).`,
+                                severityWarning);
+                        }
+                        break;
                 }
             }
 
             if (!$reg.floatingPoint.test(params[2].text.trim())) {
                 pushDiag(line.lineNumber, params[2].charStartIndex, params[2].charEndIndex,
-                    "Invalid parameter. Expects floating point number.", vscode.DiagnosticSeverity.Error);
+                    "Invalid parameter. Expects floating point number.", severityError);
             } else {
                 warnIfParamIsNotArcaeaFloatingPointNumber(line, params[2]);
                 warnIfParamContainsWhitespace(line, params[2]);
@@ -347,7 +376,7 @@ function validateFile(doc: vscode.TextDocument, diagCollection: vscode.Diagnosti
 
             if (!$reg.floatingPoint.test(params[3].text.trim())) {
                 pushDiag(line.lineNumber, params[3].charStartIndex, params[3].charEndIndex,
-                    "Invalid parameter. Expects floating point number.", vscode.DiagnosticSeverity.Error);
+                    "Invalid parameter. Expects floating point number.", severityError);
             } else {
                 warnIfParamIsNotArcaeaFloatingPointNumber(line, params[3]);
                 warnIfParamContainsWhitespace(line, params[3]);
@@ -359,7 +388,7 @@ function validateFile(doc: vscode.TextDocument, diagCollection: vscode.Diagnosti
 
                 if ($validEasingFunctions.indexOf(easingFunction) < 0) {
                     pushDiag(line.lineNumber, params[4].charStartIndex, params[4].charEndIndex,
-                        `Invalid easing function. It should be one of: ${$validEasingFunctionsStr}.`, vscode.DiagnosticSeverity.Error);
+                        `Invalid easing function. It should be one of: ${$validEasingFunctionsStr}.`, severityError);
                 } else {
                     warnIfParamContainsWhitespace(line, params[4]);
                 }
@@ -367,7 +396,7 @@ function validateFile(doc: vscode.TextDocument, diagCollection: vscode.Diagnosti
 
             if (!$reg.floatingPoint.test(params[5].text.trim())) {
                 pushDiag(line.lineNumber, params[5].charStartIndex, params[5].charEndIndex,
-                    "Invalid parameter. Expects floating point number.", vscode.DiagnosticSeverity.Error);
+                    "Invalid parameter. Expects floating point number.", severityError);
             } else {
                 warnIfParamIsNotArcaeaFloatingPointNumber(line, params[5]);
                 warnIfParamContainsWhitespace(line, params[5]);
@@ -376,7 +405,7 @@ function validateFile(doc: vscode.TextDocument, diagCollection: vscode.Diagnosti
 
             if (!$reg.floatingPoint.test(params[6].text.trim())) {
                 pushDiag(line.lineNumber, params[6].charStartIndex, params[6].charEndIndex,
-                    "Invalid parameter. Expects floating point number.", vscode.DiagnosticSeverity.Error);
+                    "Invalid parameter. Expects floating point number.", severityError);
             } else {
                 warnIfParamIsNotArcaeaFloatingPointNumber(line, params[6]);
                 warnIfParamContainsWhitespace(line, params[6]);
@@ -385,7 +414,7 @@ function validateFile(doc: vscode.TextDocument, diagCollection: vscode.Diagnosti
 
             if (!$reg.positiveInteger.test(params[7].text.trim())) {
                 pushDiag(line.lineNumber, params[7].charStartIndex, params[7].charEndIndex,
-                    "Invalid parameter. Expects positive integer.", vscode.DiagnosticSeverity.Error);
+                    "Invalid parameter. Expects positive integer.", severityError);
             } else {
                 const arcColorValue = Number.parseInt(params[7].text.trim());
 
@@ -396,9 +425,15 @@ function validateFile(doc: vscode.TextDocument, diagCollection: vscode.Diagnosti
                 }
 
                 if ($validArcColorsNotSuggested.indexOf(arcColorValue) >= 0) {
-                    pushDiag(line.lineNumber, params[7].charStartIndex, params[7].charEndIndex,
-                        `The color (${arcColorValue}) is one of the extended colors. It does not guarantee compatibility.`,
-                        vscode.DiagnosticSeverity.Warning);
+                    switch (validationMode) {
+                        case ValidationMode.Normal:
+                            break;
+                        default:
+                            pushDiag(line.lineNumber, params[7].charStartIndex, params[7].charEndIndex,
+                                `The color (${arcColorValue}) is one of the extended colors. It does not guarantee compatibility.`,
+                                severityWarning);
+                    }
+
                     isArcColorValid = true;
                 }
 
@@ -406,14 +441,14 @@ function validateFile(doc: vscode.TextDocument, diagCollection: vscode.Diagnosti
                     warnIfParamContainsWhitespace(line, params[7]);
                 } else {
                     pushDiag(line.lineNumber, params[7].charStartIndex, params[7].charEndIndex,
-                        "Invalid color value. Expectes 0 (blue) or 1 (red).", vscode.DiagnosticSeverity.Error);
+                        "Invalid color value. Expectes 0 (blue) or 1 (red).", severityError);
                 }
             }
 
             {
                 if (params[8].text.trim() !== "none") {
                     pushDiag(line.lineNumber, params[8].charStartIndex, params[8].charEndIndex,
-                        "This field must be \"none\".", vscode.DiagnosticSeverity.Error);
+                        "This field must be \"none\".", severityError);
                 } else {
                     warnIfParamContainsWhitespace(line, params[8]);
                 }
@@ -422,7 +457,7 @@ function validateFile(doc: vscode.TextDocument, diagCollection: vscode.Diagnosti
             {
                 if ($validIsTraceValues.indexOf(params[9].text.trim()) < 0) {
                     pushDiag(line.lineNumber, params[9].charStartIndex, params[9].charEndIndex,
-                        "Invalid trace arc setting. It should be \"true\" or \"false\".", vscode.DiagnosticSeverity.Error);
+                        "Invalid trace arc setting. It should be \"true\" or \"false\".", severityError);
                 } else {
                     const isTraceArcStr = params[9].text.trim();
 
@@ -473,7 +508,7 @@ function validateFile(doc: vscode.TextDocument, diagCollection: vscode.Diagnosti
 
                         if (!segmentTrimmed.startsWith("arctap(")) {
                             pushDiag(line.lineNumber, arcTapSegmentCharStartIndex, arcTapSegmentCharEndIndex,
-                                "Expects \"arctap\" command.", vscode.DiagnosticSeverity.Error);
+                                "Expects \"arctap\" command.", severityError);
                             arcTapErrored = true;
                         }
 
@@ -485,7 +520,7 @@ function validateFile(doc: vscode.TextDocument, diagCollection: vscode.Diagnosti
 
                             if (util.isNullOrUndefined(arcTapMatches) || arcTapMatches.length !== 2) {
                                 pushDiag(line.lineNumber, arcTapSegmentCharStartIndex, arcTapSegmentCharEndIndex,
-                                    "Invalid \"arctap\" command.", vscode.DiagnosticSeverity.Error);
+                                    "Invalid \"arctap\" command.", severityError);
                                 arcTapErrored = true;
                             } else {
                                 arcTapParamString = arcTapMatches[1];
@@ -496,7 +531,7 @@ function validateFile(doc: vscode.TextDocument, diagCollection: vscode.Diagnosti
 
                                 if (!$reg.positiveInteger.test(arcTapParamString)) {
                                     pushDiag(line.lineNumber, arcTapParamStringStartIndex, arcTapParamStringEndIndex,
-                                        "Invalid parameter. Expects positive integer.", vscode.DiagnosticSeverity.Error);
+                                        "Invalid parameter. Expects positive integer.", severityError);
                                     arcTapErrored = true;
                                 }
                             }
@@ -504,7 +539,7 @@ function validateFile(doc: vscode.TextDocument, diagCollection: vscode.Diagnosti
                             if (!arcTapErrored) {
                                 if ($reg.whitespace.test(segment)) {
                                     pushDiag(line.lineNumber, arcTapSegmentCharStartIndex, arcTapSegmentCharEndIndex,
-                                        "\"arctap\" array should not contain whitespace characters.", vscode.DiagnosticSeverity.Warning);
+                                        "\"arctap\" array should not contain whitespace characters.", severityWarning);
                                 }
                             }
 
@@ -518,7 +553,7 @@ function validateFile(doc: vscode.TextDocument, diagCollection: vscode.Diagnosti
                                         if (arcTapParamValue < paramsCheckResult.arcStartTime || paramsCheckResult.arcEndTime < arcTapParamValue) {
                                             pushDiag(line.lineNumber, arcTapParamStringStartIndex, arcTapParamStringEndIndex,
                                                 `Time of \"arctap\" (${arcTapParamValue}) may be invalid. It should be between ${paramsCheckResult.arcStartTime} and ${paramsCheckResult.arcEndTime}.`,
-                                                vscode.DiagnosticSeverity.Warning);
+                                                severityWarning);
                                         }
                                     }
 
@@ -526,7 +561,7 @@ function validateFile(doc: vscode.TextDocument, diagCollection: vscode.Diagnosti
                                         if (arcTapParamValue <= lastArcTapHitTime) {
                                             pushDiag(line.lineNumber, arcTapParamStringStartIndex, arcTapParamStringEndIndex,
                                                 `Time of \"arctap\" (${arcTapParamValue}) is less than last \"arctap\" (${lastArcTapHitTime}).`,
-                                                vscode.DiagnosticSeverity.Warning);
+                                                severityWarning);
                                         }
                                     }
 
@@ -544,7 +579,7 @@ function validateFile(doc: vscode.TextDocument, diagCollection: vscode.Diagnosti
                         if (!arcTapErrored) {
                             if (segment.length > segmentTrimmed.length) {
                                 pushDiag(line.lineNumber, arcTapSegmentCharStartIndex, arcTapSegmentCharEndIndex,
-                                    "\"arctap\" command should not contain whitespace characters.", vscode.DiagnosticSeverity.Warning);
+                                    "\"arctap\" command should not contain whitespace characters.", severityWarning);
                             }
                         }
 
@@ -552,18 +587,32 @@ function validateFile(doc: vscode.TextDocument, diagCollection: vscode.Diagnosti
                         charIndexInArcTapContentText += segment.length + ",".length;
                     }
                 } else {
-                    pushDiag(line.lineNumber, arcTapContentStartIndex, arcTapContentEndIndex,
-                        "\"arctap\" array is empty.", vscode.DiagnosticSeverity.Warning);
+                    switch (validationMode) {
+                        case ValidationMode.Normal:
+                            break;
+                        default:
+                            pushDiag(line.lineNumber, arcTapContentStartIndex, arcTapContentEndIndex,
+                                "\"arctap\" array is empty.", severityWarning);
+                            break;
+                    }
                 }
             } else {
                 if (!util.isUndefined(paramsCheckResult.isTrace)) {
-                    // Here, the range is from '[' to ']', which is different from above (inside arctap array).
-                    const arcTapContentStartIndex = "arc()".length + matches[1].length;
-                    const arcTapContentEndIndex = arcTapContentStartIndex + arcTapContents.length + "]".length;
+                    // Now: isTrace == false
+                    switch (validationMode) {
+                        case ValidationMode.Normal:
+                            break;
+                        default:
+                            // Here, the range is from '[' to ']', which is different from above (inside arctap array).
+                            const arcTapContentStartIndex = "arc()".length + matches[1].length;
+                            const arcTapContentEndIndex = arcTapContentStartIndex + arcTapContents.length + "]".length;
 
-                    pushDiag(line.lineNumber, arcTapContentStartIndex, arcTapContentEndIndex,
-                        "\"arctap\" array appearing after playable arc (red or blue) will change it to trace arc (translucent gray).",
-                        vscode.DiagnosticSeverity.Warning);
+                            pushDiag(line.lineNumber, arcTapContentStartIndex, arcTapContentEndIndex,
+                                "\"arctap\" array appearing after playable arc (red or blue) will change it to trace arc (translucent gray).",
+                                severityWarning);
+
+                            break;
+                    }
                 }
             }
         }
@@ -571,7 +620,7 @@ function validateFile(doc: vscode.TextDocument, diagCollection: vscode.Diagnosti
 
     function checkCmdCamera(line: vscode.TextLine, matches: RegExpMatchArray | null): void {
         if (util.isNullOrUndefined(matches) || matches.length !== 2) {
-            pushDiagLine(line, "Invalid \"camera\" command. Did you miss \";\" at the end of line?", vscode.DiagnosticSeverity.Error);
+            pushDiagLine(line, "Invalid \"camera\" command. Did you miss \";\" at the end of line?", severityError);
             return;
         }
     }
@@ -635,7 +684,7 @@ function validateFile(doc: vscode.TextDocument, diagCollection: vscode.Diagnosti
     function warnIfParamContainsWhitespace(line: vscode.TextLine, param: DebugParamInfo): void {
         if ($reg.whitespace.test(param.text)) {
             pushDiag(line.lineNumber, param.charStartIndex, param.charEndIndex,
-                "The parameter should not contain whitespace characters.", vscode.DiagnosticSeverity.Warning);
+                "The parameter should not contain whitespace characters.", severityWarning);
         }
     }
 
@@ -643,7 +692,7 @@ function validateFile(doc: vscode.TextDocument, diagCollection: vscode.Diagnosti
         if (!$reg.strictFloatingPoint.test(param.text.trim())) {
             pushDiag(line.lineNumber, param.charStartIndex, param.charEndIndex,
                 "The floating point value may not be recognized by Arcaea. It should be like \"123.45\" with strictly two decimals.",
-                vscode.DiagnosticSeverity.Warning);
+                severityWarning);
         }
     }
 
@@ -652,7 +701,7 @@ function validateFile(doc: vscode.TextDocument, diagCollection: vscode.Diagnosti
 
         if (paramValue < min || max < paramValue) {
             pushDiag(line.lineNumber, param.charStartIndex, param.charEndIndex,
-                `The parameter may be out of range. Its value should be between ${min} and ${max}.`, vscode.DiagnosticSeverity.Warning);
+                `The parameter may be out of range. Its value should be between ${min} and ${max}.`, severityWarning);
         }
     }
 }

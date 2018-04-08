@@ -104,6 +104,16 @@
                     "type": "string",
                     "default": "ArcaeaSim",
                     "description": "Name of the default simulator."
+                },
+                "arcaea.snaky.validation.aff": {
+                    "type": "string",
+                    "enum": [
+                        "normal",
+                        "strict",
+                        "treatAsError"
+                    ],
+                    "default": "normal",
+                    "description": "AFF validation mode"
                 }
             }
         }
